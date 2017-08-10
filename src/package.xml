@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>test</fullName>
+    <types>
+        <members>ChildRelationshipNode</members>
+        <members>ChildRelationshipNodeTest</members>
+        <members>FabricatedSObject</members>
+        <members>FabricatedSObjectNode</members>
+        <members>FabricatedSObjectNodeStub</members>
+        <members>FabricatedSObjectStub</members>
+        <members>FabricatedSObjectTest</members>
+        <members>FieldValuePairNode</members>
+        <members>FieldValuePairNodeTest</members>
+        <members>ParentRelationshipNode</members>
+        <members>ParentRelationshipNodeTest</members>
+        <members>SObjectFabricator</members>
+        <members>SObjectFabricatorTest</members>
+        <name>ApexClass</name>
+    </types>
+    <version>38.0</version>
+</Package>

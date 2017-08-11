@@ -1,5 +1,7 @@
 # SObjectFabricator
 
+[![Deploy to Salesforce](https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png)](https://githubsfdeploy.herokuapp.com?owner=mattaddy&repo=SObjectFabricator)
+
 An SObject fabrication API to reduce database interactions and dependencies on triggers in Apex unit tests. Includes the ability to fabriate system and formula fields, rollup summaries, and child relationships. Strongly inspired by [Stephen Willcock](https://github.com/stephenwillcock)'s [Dreamforce presentation](https://www.youtube.com/watch?v=dWertK6Legc) on Tests and Testability in Apex.
 
 ## Motivation

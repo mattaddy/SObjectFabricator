@@ -1,7 +1,7 @@
-public class FabricatedSObjectNodeStub implements FabricatedSObjectNode {
+public class sfab_FabricatedSObjectNodeStub implements sfab_FabricatedSObjectNode  {
     public Map<String, Object> builtNode;
 
-    public FabricatedSObjectNodeStub(Map<String, Object> builtNode) {
+    public sfab_FabricatedSObjectNodeStub(Map<String, Object> builtNode) {
         this.builtNode = builtNode;
     }
 

@@ -48,6 +48,3 @@ System.debug(opp);
 // Account:{LastModifiedDate=2017-01-01 00:00:00, Id=Id-1}
 System.debug(opp.Account);
 ```
-
-## Improvements
-* Instances of FabricatedSObjectStub are being constructed in too many test classes. Find a way to reduce the amount of times we're calling new on that class.

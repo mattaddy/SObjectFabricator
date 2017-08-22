@@ -1,10 +1,10 @@
 @isTest
-private class ChildRelationshipNodeTest {
+private class sfab_ChildRelationshipNodeTest {
     @isTest
     private static void build_expectSerializeInvokedOnChildren() {
-        FabricatedSObjectStub child1 = new FabricatedSObjectStub(Account.class);
-        FabricatedSObjectStub child2 = new FabricatedSObjectStub(Account.class);
-        ChildRelationshipNode node = new ChildRelationshipNode('Accounts__r', new List<FabricatedSObject> { child1, child2 });
+        sfab_FabricatedSObjectStub child1 = new sfab_FabricatedSObjectStub(Account.class);
+        sfab_FabricatedSObjectStub child2 = new sfab_FabricatedSObjectStub(Account.class);
+        sfab_ChildRelationshipNode node = new sfab_ChildRelationshipNode('Accounts__r', new List<sfab_FabricatedSObject> { child1, child2 });
 
         node.build();
 
@@ -14,7 +14,7 @@ private class ChildRelationshipNodeTest {
 
     @isTest
     private static void build_expectDoneMapKey() {
-        ChildRelationshipNode node = new ChildRelationshipNode('Accounts__r', new List<FabricatedSObject>());
+        sfab_ChildRelationshipNode node = new sfab_ChildRelationshipNode('Accounts__r', new List<sfab_FabricatedSObject>());
 
         Map<String, Object> builtNode = node.build();
 
@@ -24,9 +24,9 @@ private class ChildRelationshipNodeTest {
 
     @isTest
     private static void build_expectTotalSizeMapKey() {
-        ChildRelationshipNode node = new ChildRelationshipNode('Accounts__r', new List<FabricatedSObjectStub> {
-                new FabricatedSObjectStub(Account.class),
-                new FabricatedSObjectStub(Account.class)
+        sfab_ChildRelationshipNode node = new sfab_ChildRelationshipNode('Accounts__r', new List<sfab_FabricatedSObjectStub> {
+                new sfab_FabricatedSObjectStub(Account.class),
+                new sfab_FabricatedSObjectStub(Account.class)
         });
 
         Map<String, Object> builtNode = node.build();
@@ -37,9 +37,9 @@ private class ChildRelationshipNodeTest {
 
     @isTest
     private static void build_expectSerializedChildrenMap() {
-        FabricatedSObjectStub child1 = new FabricatedSObjectStub(Account.class, new Map<String, Object> { 'Name' => 'Foo-1' });
-        FabricatedSObjectStub child2 = new FabricatedSObjectStub(Account.class, new Map<String, Object> { 'Name' => 'Foo-2' });
-        ChildRelationshipNode node = new ChildRelationshipNode('Accounts__r', new List<FabricatedSObject> { child1, child2 });
+        sfab_FabricatedSObjectStub child1 = new sfab_FabricatedSObjectStub(Account.class, new Map<String, Object> { 'Name' => 'Foo-1' });
+        sfab_FabricatedSObjectStub child2 = new sfab_FabricatedSObjectStub(Account.class, new Map<String, Object> { 'Name' => 'Foo-2' });
+        sfab_ChildRelationshipNode node = new sfab_ChildRelationshipNode('Accounts__r', new List<sfab_FabricatedSObject> { child1, child2 });
 
         List<Map<String, Object>> serializedChildren = new List<Map<String, Object>>();
         serializedChildren.add(child1.serialize());

@@ -1,8 +1,8 @@
-public class FieldValuePairNode implements FabricatedSObjectNode {
+public class sfab_FieldValuePairNode implements sfab_FabricatedSObjectNode {
     protected Schema.SObjectField field;
     protected Object value;
 
-    public FieldValuePairNode(Schema.SObjectField field, Object value) {
+    public sfab_FieldValuePairNode(Schema.SObjectField field, Object value) {
         this.field = field;
         this.value = value;
     }

@@ -1,8 +1,8 @@
-public class ChildRelationshipNode implements FabricatedSObjectNode {
+public class sfab_ChildRelationshipNode implements sfab_FabricatedSObjectNode {
     private String fieldName;
-    private List<FabricatedSObject> children;
+    private List<sfab_FabricatedSObject> children;
 
-    public ChildRelationshipNode(String fieldName, List<FabricatedSObject> children) {
+    public sfab_ChildRelationshipNode(String fieldName, List<sfab_FabricatedSObject> children) {
         this.fieldName = fieldName;
         this.children = children;
     }
@@ -10,7 +10,7 @@ public class ChildRelationshipNode implements FabricatedSObjectNode {
     public Map<String, Object> build() {
         List<Map<String, Object>> serializedChildren = new List<Map<String, Object>>();
 
-        for (FabricatedSObject child : children) {
+        for (sfab_FabricatedSObject child : children) {
             serializedChildren.add(child.serialize());
         }
 

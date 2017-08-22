@@ -19,16 +19,16 @@ Rather than relying on triggers to populate fields in our unit tests, or the res
 SObjectFabricator provides the ability to set any field value, including system, formula, rollup summaries, and relationships.
 
 ```java
-FabricatedSObject fabricatedAccount = new FabricatedSObject(Account.class);
+sfab_FabricatedSObject fabricatedAccount = new sfab_FabricatedSObject(Account.class);
 fabricatedAccount.setField(Account.Id, 'Id-1');
 fabricatedAccount.setField(Account.LastModifiedDate, Date.newInstance(2017, 1, 1));
 
-fabricatedAccount.setChildren('Opportunities', new List<FabricatedSObject> {
-        new FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-1'),
-        new FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-2')
+fabricatedAccount.setChildren('Opportunities', new List<sfab_FabricatedSObject> {
+        new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-1'),
+        new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-2')
 });
 
-Account acct = (Account)new SObjectFabricator().fabricate(fabricatedAccount);
+Account acct = (Account)new sfab_SObjectFabricator().fabricate(fabricatedAccount);
 
 // Account:{LastModifiedDate=2017-01-01 00:00:00, Id=Id-1}
 System.debug(acct);
@@ -36,11 +36,11 @@ System.debug(acct);
 // (Opportunity:{Id=OppId-1}, Opportunity:{Id=OppId-2})
 System.debug(acct.Opportunities);
 
-FabricatedSObject fabricatedOpportunity = new FabricatedSObject(Opportunity.class);
+sfab_FabricatedSObject fabricatedOpportunity = new sfab_FabricatedSObject(Opportunity.class);
 fabricatedOpportunity.setField(Opportunity.Id, 'OppId-3');
 fabricatedOpportunity.setParent('Account', fabricatedAccount);
 
-Opportunity opp = (Opportunity)new SObjectFabricator().fabricate(fabricatedOpportunity);
+Opportunity opp = (Opportunity)new sfab_SObjectFabricator().fabricate(fabricatedOpportunity);
 
 // Opportunity:{Id=OppId-2}
 System.debug(opp);

@@ -1,9 +1,9 @@
 @isTest
-private class SObjectFabricatorTest {
+private class sfab_SObjectFabricatorTest {
     @isTest
     private static void fabricate_expectSerializeInvoked() {
-        FabricatedSObjectStub fabricatedSObject = new FabricatedSObjectStub(Account.class);
-        SObjectFabricator fabricator = new SObjectFabricator();
+        sfab_FabricatedSObjectStub fabricatedSObject = new sfab_FabricatedSObjectStub(Account.class);
+        sfab_SObjectFabricator fabricator = new sfab_SObjectFabricator();
 
         fabricator.fabricate(fabricatedSObject);
 
@@ -12,8 +12,8 @@ private class SObjectFabricatorTest {
 
     @isTest
     private static void fabricate_expectSpecifiedSObjectType() {
-        FabricatedSObjectStub fabricatedSObject = new FabricatedSObjectStub(Account.class);
-        SObjectFabricator fabricator = new SObjectFabricator();
+        sfab_FabricatedSObjectStub fabricatedSObject = new sfab_FabricatedSObjectStub(Account.class);
+        sfab_SObjectFabricator fabricator = new sfab_SObjectFabricator();
 
         SObject sObj = fabricator.fabricate(fabricatedSObject);
 
@@ -23,8 +23,8 @@ private class SObjectFabricatorTest {
     @isTest
     private static void fabricate_expectProperties() {
         Map<String, Object> fields = new Map<String, Object> { 'Id' => 'id-1', 'Name' => 'Foo' };
-        FabricatedSObjectStub fabricatedSObject = new FabricatedSObjectStub(Account.class, fields);
-        SObjectFabricator fabricator = new SObjectFabricator();
+        sfab_FabricatedSObjectStub fabricatedSObject = new sfab_FabricatedSObjectStub(Account.class, fields);
+        sfab_SObjectFabricator fabricator = new sfab_SObjectFabricator();
 
         SObject sObj = fabricator.fabricate(fabricatedSObject);
 

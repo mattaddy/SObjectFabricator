@@ -1,8 +1,8 @@
-public class ParentRelationshipNode implements FabricatedSObjectNode {
+public class sfab_ParentRelationshipNode implements sfab_FabricatedSObjectNode {
     private String fieldName;
-    private FabricatedSObject parent;
+    private sfab_FabricatedSObject parent;
 
-    public ParentRelationshipNode(String fieldName, FabricatedSObject parent) {
+    public sfab_ParentRelationshipNode(String fieldName, sfab_FabricatedSObject parent) {
         this.fieldName = fieldName;
         this.parent = parent;
     }

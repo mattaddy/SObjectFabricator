@@ -1,26 +1,27 @@
 @isTest
 private class sfab_FabricatedSObjectTest {
     @isTest
-    private static void serialize_emptyNodes_expectEmptyMap() {
-        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class, new List<sfab_FabricatedSObjectNodeStub>());
-        Map<String, Object> serializedNodes = fabricatedSObject.serialize();
-        System.assertEquals(new Map<String, Object>(), serializedNodes);
+    private static void toSObject_expectSpecifiedSObjectType() {
+        SObject sObj = new sfab_FabricatedSObject(Account.class).toSObject();
+        System.assert(sObj instanceof Account);
     }
 
     @isTest
-    private static void serialize_nonEmptyNodes_expectBuiltNodes() {
-        sfab_FabricatedSObjectNodeStub node1 = new sfab_FabricatedSObjectNodeStub(new Map<String, Object> { 'key1' => 'value1' });
-        sfab_FabricatedSObjectNodeStub node2 = new sfab_FabricatedSObjectNodeStub(new Map<String, Object> { 'key2' => 'value2' });
+    private static void toSObject_expectBuildInvokedOnNodes() {
+        sfab_FabricatedSObjectNodeStub node1 = new sfab_FabricatedSObjectNodeStub();
+        sfab_FabricatedSObjectNodeStub node2 = new sfab_FabricatedSObjectNodeStub();
+        SObject sObj = new sfab_FabricatedSObject(Account.class, new List<sfab_FabricatedSObjectNode> { node1, node2 }).toSObject();
+        System.assert(node1.serializeInvoked);
+        System.assert(node2.serializeInvoked);
+    }
 
-        Map<String, Object> builtNodes = new Map<String, Object>();
-        builtNodes.putAll(node1.build());
-        builtNodes.putAll(node2.build());
-
-        List<sfab_FabricatedSObjectNodeStub> nodes = new List<sfab_FabricatedSObjectNodeStub> { node1, node2 };
-
-        Map<String, Object> serializedNodes = new sfab_FabricatedSObject(Account.class, nodes).serialize();
-
-        System.assertEquals(serializedNodes, builtNodes);
+    @isTest
+    private static void toSObject_expectProperties() {
+        Map<String, Object> fields = new Map<String, Object> { 'Id' => 'id-1', 'Name' => 'Foo' };
+        sfab_FabricatedSObjectNodeStub node = new sfab_FabricatedSObjectNodeStub(fields);
+        SObject sObj = new sfab_FabricatedSObject(Account.class, new List<sfab_FabricatedSObjectNode> { node }).toSObject();
+        System.assertEquals(fields.get('Id'), sObj.Id);
+        System.assertEquals(fields.get('Name'), sObj.get('Name'));
     }
 
     @isTest

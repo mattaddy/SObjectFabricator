@@ -1,11 +1,17 @@
 public class sfab_FabricatedSObjectNodeStub implements sfab_FabricatedSObjectNode  {
-    public Map<String, Object> builtNode;
+    public Boolean serializeInvoked = false;
+    public Map<String, Object> serializedNode;
 
-    public sfab_FabricatedSObjectNodeStub(Map<String, Object> builtNode) {
-        this.builtNode = builtNode;
+    public sfab_FabricatedSObjectNodeStub() {
+        serializedNode = new Map<String, Object>();
     }
 
-    public Map<String, Object> build() {
-        return builtNode;
+    public sfab_FabricatedSObjectNodeStub(Map<String, Object> serializedNode) {
+        this.serializedNode = serializedNode;
+    }
+
+    public Map<String, Object> serialize() {
+        serializeInvoked = true;
+        return serializedNode;
     }
 }

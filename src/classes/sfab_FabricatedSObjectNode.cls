@@ -1,3 +1,3 @@
 public interface sfab_FabricatedSObjectNode {
-    Map<String, Object> build();
+    Map<String, Object> serialize();
 }

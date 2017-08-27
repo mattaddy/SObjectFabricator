@@ -28,7 +28,7 @@ fabricatedAccount.setChildren('Opportunities', new List<sfab_FabricatedSObject> 
         new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-2')
 });
 
-Account acct = (Account)new sfab_SObjectFabricator().fabricate(fabricatedAccount);
+Account acct = (Account)fabricatedAccount.toSObject();
 
 // Account:{LastModifiedDate=2017-01-01 00:00:00, Id=Id-1}
 System.debug(acct);
@@ -40,9 +40,9 @@ sfab_FabricatedSObject fabricatedOpportunity = new sfab_FabricatedSObject(Opport
 fabricatedOpportunity.setField(Opportunity.Id, 'OppId-3');
 fabricatedOpportunity.setParent('Account', fabricatedAccount);
 
-Opportunity opp = (Opportunity)new sfab_SObjectFabricator().fabricate(fabricatedOpportunity);
+Opportunity opp = (Opportunity)fabricatedOpportunity.toSObject();
 
-// Opportunity:{Id=OppId-2}
+// Opportunity:{Id=OppId-3}
 System.debug(opp);
 
 // Account:{LastModifiedDate=2017-01-01 00:00:00, Id=Id-1}

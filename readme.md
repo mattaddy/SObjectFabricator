@@ -18,6 +18,8 @@ Rather than relying on triggers to populate fields in our unit tests, or the res
 
 SObjectFabricator provides the ability to set any field value, including system, formula, rollup summaries, and relationships.
 
+### Simple Example
+
 ```java
 sfab_FabricatedSObject fabricatedAccount = new sfab_FabricatedSObject(Account.class);
 fabricatedAccount.setField(Account.Id, 'Id-1');
@@ -47,4 +49,30 @@ System.debug(opp);
 
 // Account:{LastModifiedDate=2017-01-01 00:00:00, Id=Id-1}
 System.debug(opp.Account);
+```
+
+### Fluent API
+
+The example above is a bit verbose. We can simplify it by leveraging the fluent API provided by sfab_FabricatedSObject.
+
+```java
+Account acct = (Account)new sfab_FabricatedSObject(Account.class)
+    .setField(Account.Id, 'Id-1')
+    .setField(Account.LastModifiedDate, Date.newInstance(2017, 1, 1))
+    .setChildren('Opportunities', new List<sfab_FabricatedSObject> {
+        new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-1'), 
+        new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-2')
+    }).toSObject();
+```
+
+### Multiple Levels of Child Relationships
+
+```java
+
+```
+
+### Combined with ApexMocks and the Selector Pattern
+
+```java
+
 ```

@@ -7,7 +7,7 @@ public class sfab_FieldValuePairNode implements sfab_FabricatedSObjectNode {
         this.value = value;
     }
 
-    public Map<String, Object> build() {
+    public Map<String, Object> serialize() {
         return new Map<String, Object> { field.getDescribe().getName() => value };
     }
 }

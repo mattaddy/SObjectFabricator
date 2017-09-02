@@ -6,7 +6,7 @@ private class sfab_ChildRelationshipNodeTest {
         sfab_FabricatedSObjectStub child2 = new sfab_FabricatedSObjectStub(Account.class);
         sfab_ChildRelationshipNode node = new sfab_ChildRelationshipNode('Accounts__r', new List<sfab_FabricatedSObject> { child1, child2 });
 
-        node.build();
+        node.serialize();
 
         System.assert(child1.serializeInvoked);
         System.assert(child2.serializeInvoked);
@@ -16,7 +16,7 @@ private class sfab_ChildRelationshipNodeTest {
     private static void build_expectDoneMapKey() {
         sfab_ChildRelationshipNode node = new sfab_ChildRelationshipNode('Accounts__r', new List<sfab_FabricatedSObject>());
 
-        Map<String, Object> builtNode = node.build();
+        Map<String, Object> builtNode = node.serialize();
 
         System.assert(((Map<String, Object>)builtNode.get('Accounts__r')).containsKey('done'));
         System.assert((Boolean)((Map<String, Object>)builtNode.get('Accounts__r')).get('done'));
@@ -29,7 +29,7 @@ private class sfab_ChildRelationshipNodeTest {
                 new sfab_FabricatedSObjectStub(Account.class)
         });
 
-        Map<String, Object> builtNode = node.build();
+        Map<String, Object> builtNode = node.serialize();
 
         System.assert(((Map<String, Object>)builtNode.get('Accounts__r')).containsKey('totalSize'));
         System.assertEquals(2, ((Map<String, Object>)builtNode.get('Accounts__r')).get('totalSize'));
@@ -45,7 +45,7 @@ private class sfab_ChildRelationshipNodeTest {
         serializedChildren.add(child1.serialize());
         serializedChildren.add(child2.serialize());
 
-        Map<String, Object> builtNode = node.build();
+        Map<String, Object> builtNode = node.serialize();
 
         System.assertEquals(serializedChildren, ((Map<String, Object>)builtNode.get('Accounts__r')).get('records'));
     }

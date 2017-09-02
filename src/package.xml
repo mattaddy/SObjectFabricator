@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
-        <members>sfab_SObjectFabricator</members>
         <members>sfab_FabricatedSObjectNode</members>
         <members>sfab_FieldValuePairNode</members>
         <members>sfab_ParentRelationshipNode</members>
@@ -13,7 +12,6 @@
         <members>sfab_FabricatedSObjectTest</members>
         <members>sfab_FieldValuePairNodeTest</members>
         <members>sfab_ParentRelationshipNodeTest</members>
-        <members>sfab_SObjectFabricatorTest</members>
         <name>ApexClass</name>
     </types>
     <version>38.0</version>

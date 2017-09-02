@@ -18,6 +18,8 @@ Rather than relying on triggers to populate fields in our unit tests, or the res
 
 SObjectFabricator provides the ability to set any field value, including system, formula, rollup summaries, and relationships.
 
+### Detailed example
+
 ```java
 sfab_FabricatedSObject fabricatedAccount = new sfab_FabricatedSObject(Account.class);
 fabricatedAccount.setField(Account.Id, 'Id-1');
@@ -28,7 +30,7 @@ fabricatedAccount.setChildren('Opportunities', new List<sfab_FabricatedSObject> 
         new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-2')
 });
 
-Account acct = (Account)new sfab_SObjectFabricator().fabricate(fabricatedAccount);
+Account acct = (Account)fabricatedAccount.toSObject();
 
 // Account:{LastModifiedDate=2017-01-01 00:00:00, Id=Id-1}
 System.debug(acct);
@@ -40,11 +42,37 @@ sfab_FabricatedSObject fabricatedOpportunity = new sfab_FabricatedSObject(Opport
 fabricatedOpportunity.setField(Opportunity.Id, 'OppId-3');
 fabricatedOpportunity.setParent('Account', fabricatedAccount);
 
-Opportunity opp = (Opportunity)new sfab_SObjectFabricator().fabricate(fabricatedOpportunity);
+Opportunity opp = (Opportunity)fabricatedOpportunity.toSObject();
 
-// Opportunity:{Id=OppId-2}
+// Opportunity:{Id=OppId-3}
 System.debug(opp);
 
 // Account:{LastModifiedDate=2017-01-01 00:00:00, Id=Id-1}
 System.debug(opp.Account);
 ```
+
+### Set non-relationship field values in bulk
+
+```java
+Map<SObjectField, Object> accountValues = new Map<SObjectField, Object> {
+        Account.Id => 'Id-1',
+        Account.LastModifiedDate => Date.newInstance(2017, 1, 1)
+};
+
+Account fabricatedAccount = (Account)new sfab_FabricatedSObject(Account.class, accountValues).toSObject();
+```
+
+### Fluent API
+
+The example above is a bit verbose. We can simplify it by leveraging the fluent API provided by sfab_FabricatedSObject.
+
+```java
+Account acct = (Account)new sfab_FabricatedSObject(Account.class)
+    .setField(Account.Id, 'Id-1')
+    .setField(Account.LastModifiedDate, Date.newInstance(2017, 1, 1))
+    .setChildren('Opportunities', new List<sfab_FabricatedSObject> {
+        new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-1'), 
+        new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-2')
+    }).toSObject();
+```
+

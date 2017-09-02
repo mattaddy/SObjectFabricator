@@ -7,7 +7,7 @@ public class sfab_ChildRelationshipNode implements sfab_FabricatedSObjectNode {
         this.children = children;
     }
 
-    public Map<String, Object> build() {
+    public Map<String, Object> serialize() {
         List<Map<String, Object>> serializedChildren = new List<Map<String, Object>>();
 
         for (sfab_FabricatedSObject child : children) {

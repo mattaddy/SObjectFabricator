@@ -7,7 +7,7 @@ public class sfab_ParentRelationshipNode implements sfab_FabricatedSObjectNode {
         this.parent = parent;
     }
 
-    public Map<String, Object> build() {
+    public Map<String, Object> serialize() {
         return new Map<String, Object> { fieldName => parent.serialize() };
     }
 }

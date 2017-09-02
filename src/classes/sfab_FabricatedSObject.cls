@@ -6,6 +6,14 @@ public virtual class sfab_FabricatedSObject {
         this.sType = sType;
     }
 
+    public sfab_FabricatedSObject(Type sType, Map<Schema.SObjectField, Object> fields) {
+        this(sType);
+
+        for (Schema.SObjectField field : fields.keySet()) {
+            setField(field, fields.get(field));
+        }
+    }
+
     @testVisible protected sfab_FabricatedSObject(Type sType, List<sfab_FabricatedSObjectNode> nodes) {
         this.sType = sType;
         this.nodes = nodes;

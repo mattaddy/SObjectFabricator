@@ -1,6 +1,17 @@
 @isTest
 private class sfab_FabricatedSObjectTest {
     @isTest
+    private static void constructor_expectFieldsSet() {
+        Map<Schema.SObjectField, Object> accountFields = new Map<SObjectField, Object> {
+                Account.Id => 'Id-1',
+                Account.Name => 'Foo'
+        };
+
+        sfab_FabricatedSObject fabricatedAccount = new sfab_FabricatedSObject(Account.class, accountFields);
+        System.assertEquals(accountFields.size(), fabricatedAccount.nodes.size());
+    }
+
+    @isTest
     private static void toSObject_expectSpecifiedSObjectType() {
         SObject sObj = new sfab_FabricatedSObject(Account.class).toSObject();
         System.assert(sObj instanceof Account);

@@ -18,7 +18,7 @@ Rather than relying on triggers to populate fields in our unit tests, or the res
 
 SObjectFabricator provides the ability to set any field value, including system, formula, rollup summaries, and relationships.
 
-### Simple Example
+#### Detailed example
 
 ```java
 sfab_FabricatedSObject fabricatedAccount = new sfab_FabricatedSObject(Account.class);
@@ -51,7 +51,18 @@ System.debug(opp);
 System.debug(opp.Account);
 ```
 
-### Fluent API
+#### Set non-relationship field values in bulk
+
+```java
+Map<SObjectField, Object> accountValues = new Map<SObjectField, Object> {
+        Account.Id => 'Id-1',
+        Account.LastModifiedDate => Date.newInstance(2017, 1, 1)
+};
+
+Account fabricatedAccount = (Account)new sfab_FabricatedSObject(Account.class, accountValues).toSObject();
+```
+
+#### Fluent API
 
 The example above is a bit verbose. We can simplify it by leveraging the fluent API provided by sfab_FabricatedSObject.
 
@@ -65,14 +76,3 @@ Account acct = (Account)new sfab_FabricatedSObject(Account.class)
     }).toSObject();
 ```
 
-### Multiple Levels of Child Relationships
-
-```java
-
-```
-
-### Combined with ApexMocks and the Selector Pattern
-
-```java
-
-```

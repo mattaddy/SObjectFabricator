@@ -28,10 +28,34 @@ public virtual class sfab_FabricatedSObject {
         nodes.add(new sfab_ParentRelationshipNode(relationshipName, fabricatedParent));
         return this;
     }
+    
+    public sfab_FabricatedSObject setParent(Schema.SObjectField field, sfab_FabricatedSObject fabricatedParent) {
+        nodes.add(new sfab_ParentRelationshipNode(field, fabricatedParent));
+        return this;
+    }
+    
+    public sfab_FabricatedSObject setParent(Schema.SObjectField field, sfab_FabricatedSObject fabricatedParent, Schema.SObjectField parentIdField) {
+        Object parentId = fabricatedParent.getFieldValue(parentIdField);
+        if(parentId != null) setField(field, parentId);
+        
+        nodes.add(new sfab_ParentRelationshipNode(field, fabricatedParent));
+        return this;
+    }
 
     public sfab_FabricatedSObject setChildren(String relationshipName, List<sfab_FabricatedSObject> fabricatedChildren) {
         nodes.add(new sfab_ChildRelationshipNode(relationshipName, fabricatedChildren));
         return this;
+    }
+    
+    public Object getFieldValue(Schema.SObjectField field) {
+        for(sfab_FabricatedSObjectNode node : nodes) {
+            if(node instanceOf sfab_FieldValuePairNode) {
+                sfab_FieldValuePairNode theNode = ((sfab_FieldValuePairNode) node);
+                if(theNode.field == field) return theNode.value;
+            }
+        }
+        
+        return null;
     }
 
     public SObject toSObject() {

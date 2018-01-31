@@ -48,11 +48,41 @@ private class sfab_FabricatedSObjectTest {
         fabricatedSObject.setParent('Account', new sfab_FabricatedSObject(Account.class));
         System.assertEquals(1, fabricatedSObject.nodes.size());
     }
+    
+    @isTest
+    private static void setParentByToken_expectFieldAddedToNodes() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Opportunity.class);
+        fabricatedSObject.setParent(Opportunity.AccountId, new sfab_FabricatedSObject(Account.class));
+        System.assertEquals(1, fabricatedSObject.nodes.size());
+    }
+    
+    @isTest
+    private static void setParentWithId_expectFieldAddedToNodes() {
+        sfab_FabricatedSObject fabricatedParentSObject = new sfab_FabricatedSObject(Account.class);
+        fabricatedParentSObject.setField(Account.Id, 'Id-1');
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Opportunity.class);
+        fabricatedSObject.setParent(Opportunity.AccountId, fabricatedParentSObject, Account.Id);
+        System.assertEquals(2, fabricatedSObject.nodes.size());
+        System.assertEquals('Id-1', fabricatedSObject.getFieldValue(Opportunity.AccountId));
+    }
 
     @isTest
     private static void setChildren_expectFieldAdded() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.setChildren('Opportunites', new List<sfab_FabricatedSObject>());
         System.assertEquals(1, fabricatedSObject.nodes.size());
+    }
+    
+    @isTest
+    private static void getFieldValue_expectValue() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
+        fabricatedSObject.setField(Account.Id, 'Id-1');
+        System.assertEquals('Id-1', fabricatedSObject.getFieldValue(Account.Id));
+    }
+    
+    @isTest
+    private static void getFieldValue_expectNotFound() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
+        System.assertEquals(null, fabricatedSObject.getFieldValue(Account.Id));
     }
 }

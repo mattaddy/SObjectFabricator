@@ -1,6 +1,6 @@
 public class sfab_FieldValuePairNode implements sfab_FabricatedSObjectNode {
-    protected Schema.SObjectField field;
-    protected Object value;
+    public Schema.SObjectField field {get; private set;}
+    public Object value {get; private set;}
 
     public sfab_FieldValuePairNode(Schema.SObjectField field, Object value) {
         this.field = field;

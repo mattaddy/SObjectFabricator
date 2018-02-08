@@ -50,6 +50,13 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
+    private static void setParentWithDescribe_expectFieldAddedToNodes() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Opportunity.class);
+        fabricatedSObject.setParent(Opportunity.AccountId.getDescribe(), new sfab_FabricatedSObject(Account.class));
+        System.assertEquals(1, fabricatedSObject.nodes.size());
+    }
+
+    @isTest
     private static void setChildren_expectFieldAdded() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.setChildren('Opportunites', new List<sfab_FabricatedSObject>());

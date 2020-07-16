@@ -25,6 +25,10 @@ node_modules/
 # Eslint cache
 .eslintcache
 
+# Illuminated Cloud/IntelliJ
+/.idea/
+/IlluminatedCloud/
+
 # MacOS system files
 .DS_Store
 

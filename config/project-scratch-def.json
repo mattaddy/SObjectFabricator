@@ -1,0 +1,9 @@
+{
+  "orgName": "sobject-fabricator",
+  "edition": "Developer",
+  "settings": {
+      "orgPreferenceSettings": {
+          "s1DesktopEnabled": true
+      }
+  }
+}

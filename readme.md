@@ -22,12 +22,12 @@ SObjectFabricator provides the ability to set any field value, including system,
 
 ```java
 sfab_FabricatedSObject fabricatedAccount = new sfab_FabricatedSObject(Account.class);
-fabricatedAccount.setField(Account.Id, 'Id-1');
-fabricatedAccount.setField(Account.LastModifiedDate, Date.newInstance(2017, 1, 1));
+fabricatedAccount.set(Account.Id, 'Id-1');
+fabricatedAccount.set(Account.LastModifiedDate, Date.newInstance(2017, 1, 1));
 
-fabricatedAccount.setChildren('Opportunities', new List<sfab_FabricatedSObject> {
-        new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-1'),
-        new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-2')
+fabricatedAccount.set('Opportunities', new List<sfab_FabricatedSObject> {
+        new sfab_FabricatedSObject(Opportunity.class).set(Opportunity.Id, 'OppId-1'),
+        new sfab_FabricatedSObject(Opportunity.class).set(Opportunity.Id, 'OppId-2')
 });
 
 Account acct = (Account)fabricatedAccount.toSObject();
@@ -39,8 +39,8 @@ System.debug(acct);
 System.debug(acct.Opportunities);
 
 sfab_FabricatedSObject fabricatedOpportunity = new sfab_FabricatedSObject(Opportunity.class);
-fabricatedOpportunity.setField(Opportunity.Id, 'OppId-3');
-fabricatedOpportunity.setParent('Account', fabricatedAccount);
+fabricatedOpportunity.set(Opportunity.Id, 'OppId-3');
+fabricatedOpportunity.set('Account', fabricatedAccount);
 
 Opportunity opp = (Opportunity)fabricatedOpportunity.toSObject();
 
@@ -53,26 +53,74 @@ System.debug(opp.Account);
 
 ### Set non-relationship field values in bulk
 
+Field values can be set in bulk, either at construction time, or later (using `set`), by creating a `Map<SObjectField, Object>` of the fields that you wish to set and using that.
+
 ```java
 Map<SObjectField, Object> accountValues = new Map<SObjectField, Object> {
         Account.Id => 'Id-1',
         Account.LastModifiedDate => Date.newInstance(2017, 1, 1)
 };
 
-Account fabricatedAccount = (Account)new sfab_FabricatedSObject(Account.class, accountValues).toSObject();
+Account fabricatedViaConstructor = (Account)new sfab_FabricatedSObject(Account.class, accountValues)
+                                                    .toSObject();
+
+
+Account fabricatedViaSet = (Account)new sfab_FabricatedSObject(Account.class)
+                                            .set(accountValues)
+                                            .toSObject();
+
+```
+
+### Set all field values in bulk
+
+Field, Parent and Child Relationship values can be set in bulk, either at construction time, or later, by passing a `Map<String,Object>`.
+
+```java
+Map<SObjectField, Object> accountValues = new Map<SObjectField, Object> {
+        'Id'                => 'Id-1',
+        'LastModifiedDate'  => Date.newInstance(2017, 1, 1)
+        'Contacts'          =>  new List<sfab_FabricatedSObject>{
+                                    new sfab_FabricatedSObject( Contact.class )
+                                        .set( 'Name', 'ContactName' )
+                                },
+        'AccountOwner'      =>  new sfab_FabricatedSObject( User.class )
+                                    .set( 'Username', 'The user' )
+
+};
+
+Account fabricatedViaConstructor = (Account)new sfab_FabricatedSObject(Account.class, accountValues)
+                                                    .toSObject();
+
+
+Account fabricatedViaSet = (Account)new sfab_FabricatedSObject(Account.class)
+                                            .set(accountValues)
+                                            .toSObject();
 ```
 
 ### Fluent API
 
-The example above is a bit verbose. We can simplify it by leveraging the fluent API provided by sfab_FabricatedSObject.
+The initial example. We can simplify it by leveraging the fluent API provided by sfab_FabricatedSObject.
+
+```java
+Account acct = (Account)new sfab_FabricatedSObject(Account.class)
+    .set(Account.Id, 'Id-1')
+    .set(Account.LastModifiedDate, Date.newInstance(2017, 1, 1))
+    .set('Opportunities', new List<sfab_FabricatedSObject> {
+        new sfab_FabricatedSObject(Opportunity.class).set(Opportunity.Id, 'OppId-1'),
+        new sfab_FabricatedSObject(Opportunity.class).set(Opportunity.Id, 'OppId-2')
+    }).toSObject();
+```
+
+### More explicit API
+
+If you prefer the set methods to be a little more explicit in their intention, you can use more specific versions of the `set` method.
 
 ```java
 Account acct = (Account)new sfab_FabricatedSObject(Account.class)
     .setField(Account.Id, 'Id-1')
     .setField(Account.LastModifiedDate, Date.newInstance(2017, 1, 1))
     .setChildren('Opportunities', new List<sfab_FabricatedSObject> {
-        new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-1'), 
+        new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-1'),
         new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-2')
     }).toSObject();
 ```
-

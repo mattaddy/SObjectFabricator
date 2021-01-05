@@ -87,6 +87,26 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
+    private static void set_whenMapSobjectField_expectFieldsAddedToNodes() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
+
+        Map<Schema.SObjectField, Object> fields = new Map<SObjectField, Object> {
+                Account.Id => 'Id-1',
+                Account.Name => 'Foo'
+        };
+
+        fabricatedSObject.set(fields);
+        System.assertEquals( fields.size(), fabricatedSObject.nodes.size());
+
+        System.assertEquals( 'Id', String.valueOf(((sfab_FieldValuePairNode)fabricatedSObject.nodes[0]).field) );
+        System.assertEquals( 'Id-1', ((sfab_FieldValuePairNode)fabricatedSObject.nodes[0]).value );
+
+        System.assertEquals( 'Name', String.valueOf(((sfab_FieldValuePairNode)fabricatedSObject.nodes[1]).field) );
+        System.assertEquals( 'Foo', ((sfab_FieldValuePairNode)fabricatedSObject.nodes[1]).value );
+    }
+
+    @isTest
     private static void setParent_expectFieldAddedToNodes() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Opportunity.class);
         fabricatedSObject.setParent('Account', new sfab_FabricatedSObject(Account.class));

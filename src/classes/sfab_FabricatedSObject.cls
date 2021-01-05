@@ -10,10 +10,7 @@ public virtual class sfab_FabricatedSObject {
 
     public sfab_FabricatedSObject(Type sType, Map<Schema.SObjectField, Object> fields) {
         this(sType);
-
-        for (Schema.SObjectField field : fields.keySet()) {
-            setField(field, fields.get(field));
-        }
+        set(fields);
     }
 
     @testVisible protected sfab_FabricatedSObject(Type sType, List<sfab_FabricatedSObjectNode> nodes) {
@@ -35,6 +32,13 @@ public virtual class sfab_FabricatedSObject {
 
     public sfab_FabricatedSObject set( String relationshipName, List<sfab_FabricatedSObject> fabricatedChildren) {
         return setChildren( relationshipName, fabricatedChildren );
+    }
+
+    public sfab_FabricatedSObject set( Map<Schema.SObjectField, Object> fields ) {
+        for (Schema.SObjectField field : fields.keySet()) {
+            setField(field, fields.get(field));
+        }
+        return this;
     }
 
     public sfab_FabricatedSObject setField(Schema.SObjectField field, Object value) {

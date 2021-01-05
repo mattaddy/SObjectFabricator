@@ -41,6 +41,22 @@ public virtual class sfab_FabricatedSObject {
         return this;
     }
 
+    public sfab_FabricatedSObject set( Map<String, Object> fields ) {
+        for (String fieldName : fields.keySet()) {
+            Object value = fields.get( fieldName );
+            if ( value instanceOf sfab_FabricatedSObject ) {
+                set( fieldName, (sfab_FabricatedSObject)value );
+
+            } else if ( value instanceOf List<sfab_FabricatedSObject> ) {
+                set( fieldName, (List<sfab_FabricatedSObject>)value );
+
+            } else {
+                set( fieldName, fields.get(fieldName) );
+            }
+        }
+        return this;
+    }
+
     public sfab_FabricatedSObject setField(Schema.SObjectField field, Object value) {
         nodes.add(new sfab_FieldValuePairNode(field, value));
         return this;

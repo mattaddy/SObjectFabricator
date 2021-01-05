@@ -107,6 +107,38 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
+    private static void set_whenMapString_expectFieldsParentsAndChildrenAddedToNodes() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
+
+        Map<String,Object> fields = new Map<String,Object> {
+                'Id'            =>  'Id-1',
+                'Name'          =>  'Foo',
+                'Contacts'      =>  new List<sfab_FabricatedSObject>{
+                                        new sfab_FabricatedSObject( Contact.class )
+                                            .set( 'Name', 'ContactName' )
+                                    },
+                'AccountOwner'  =>  new sfab_FabricatedSObject( User.class )
+                                        .set( 'Username', 'The user' )
+        };
+
+        fabricatedSObject.set(fields);
+        System.assertEquals( 4, fabricatedSObject.nodes.size(), 'set, when given a map indexed by string, will add each of the fields' );
+
+        System.assertEquals( 'Id', String.valueOf(((sfab_FieldValuePairNode)fabricatedSObject.nodes[0]).field), 'set, when given a map indexed by string, will add each of the fields (checking name of field 0)' );
+        System.assertEquals( 'Id-1', ((sfab_FieldValuePairNode)fabricatedSObject.nodes[0]).value, 'set, when given a map indexed by string, will add each of the fields, setting the value of a simple field' );
+
+        System.assertEquals( 'Name', String.valueOf(((sfab_FieldValuePairNode)fabricatedSObject.nodes[1]).field), 'set, when given a map indexed by string, will add each of the fields (checking name of field 1)' );
+        System.assertEquals( 'Foo', ((sfab_FieldValuePairNode)fabricatedSObject.nodes[1]).value, 'set, when given a map indexed by string, will add each of the fields, setting the value of a simple field' );
+
+        System.assertEquals( 'Contacts', ((sfab_ChildRelationshipNode)fabricatedSObject.nodes[2]).fieldName, 'set, when given a map indexed by string, will add each of the fields (checking name of field 2)' );
+        System.assertEquals( 1, ((sfab_ChildRelationshipNode)fabricatedSObject.nodes[2]).children.size(), 'set, when given a map indexed by string, will add each of the fields, setting the value of a child relationship field' );
+
+        System.assertEquals( 'AccountOwner', ((sfab_ParentRelationshipNode)fabricatedSObject.nodes[3]).fieldName, 'set, when given a map indexed by string, will add each of the fields (checking name of field 3)' );
+        System.assertEquals( 1, ((sfab_ParentRelationshipNode)fabricatedSObject.nodes[3]).parent.nodes.size(), 'set, when given a map indexed by string, will add each of the fields, setting the value of a parent relationship field' );
+    }
+
+    @isTest
     private static void setParent_expectFieldAddedToNodes() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Opportunity.class);
         fabricatedSObject.setParent('Account', new sfab_FabricatedSObject(Account.class));

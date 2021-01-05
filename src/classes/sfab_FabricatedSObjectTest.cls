@@ -69,6 +69,24 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
+    private static void set_whenField_expectFieldAddedToNodes() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
+        fabricatedSObject.set(Account.Id, 'Id-1');
+        System.assertEquals(1, fabricatedSObject.nodes.size());
+        System.assertEquals( 'Id', String.valueOf(((sfab_FieldValuePairNode)fabricatedSObject.nodes[0]).field) );
+        System.assertEquals( 'Id-1', ((sfab_FieldValuePairNode)fabricatedSObject.nodes[0]).value );
+    }
+
+    @isTest
+    private static void set_whenStringField_expectFieldAddedToNodes() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
+        fabricatedSObject.set('Id', 'Id-1');
+        System.assertEquals(1, fabricatedSObject.nodes.size());
+        System.assertEquals( 'Id', String.valueOf(((sfab_FieldValuePairNode)fabricatedSObject.nodes[0]).field) );
+        System.assertEquals( 'Id-1', ((sfab_FieldValuePairNode)fabricatedSObject.nodes[0]).value );
+    }
+
+    @isTest
     private static void setParent_expectFieldAddedToNodes() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Opportunity.class);
         fabricatedSObject.setParent('Account', new sfab_FabricatedSObject(Account.class));

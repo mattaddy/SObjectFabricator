@@ -21,6 +21,14 @@ public virtual class sfab_FabricatedSObject {
         this.nodes = nodes;
     }
 
+    public sfab_FabricatedSObject set( Schema.SObjectField field, Object value) {
+        return setField( field, value );
+    }
+
+    public sfab_FabricatedSObject set( String fieldName, Object value) {
+        return setField( fieldName, value );
+    }
+
     public sfab_FabricatedSObject setField(Schema.SObjectField field, Object value) {
         nodes.add(new sfab_FieldValuePairNode(field, value));
         return this;

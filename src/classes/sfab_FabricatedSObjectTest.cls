@@ -40,6 +40,32 @@ private class sfab_FabricatedSObjectTest {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.setField(Account.Id, 'Id-1');
         System.assertEquals(1, fabricatedSObject.nodes.size());
+        System.assertEquals( 'Id', String.valueOf(((sfab_FieldValuePairNode)fabricatedSObject.nodes[0]).field) );
+        System.assertEquals( 'Id-1', ((sfab_FieldValuePairNode)fabricatedSObject.nodes[0]).value );
+    }
+
+    @isTest
+    private static void setField_whenString_expectFieldAddedToNodes() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
+        fabricatedSObject.setField('Id', 'Id-1');
+        System.assertEquals(1, fabricatedSObject.nodes.size());
+        System.assertEquals( 'Id', String.valueOf(((sfab_FieldValuePairNode)fabricatedSObject.nodes[0]).field) );
+        System.assertEquals( 'Id-1', ((sfab_FieldValuePairNode)fabricatedSObject.nodes[0]).value );
+    }
+
+    @isTest
+    private static void setField_whenStringIsInvalidField_expectException() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
+        Boolean exceptionThrown = false;
+        String  exceptionMessage;
+        try {
+            fabricatedSObject.setField('Invalid', 'Id-1');
+        }
+        catch ( sfab_FabricatedSObject.FieldDoesNotExistException e ) {
+            exceptionThrown = true;
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionThrown );
     }
 
     @isTest

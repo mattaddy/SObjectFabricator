@@ -2,6 +2,8 @@ public virtual class sfab_FabricatedSObject {
     private Type sType;
     @testVisible private List<sfab_FabricatedSObjectNode> nodes = new List<sfab_FabricatedSObjectNode>();
 
+    public class FieldDoesNotExistException extends Exception {}
+
     public sfab_FabricatedSObject(Type sType) {
         this.sType = sType;
     }
@@ -22,6 +24,20 @@ public virtual class sfab_FabricatedSObject {
     public sfab_FabricatedSObject setField(Schema.SObjectField field, Object value) {
         nodes.add(new sfab_FieldValuePairNode(field, value));
         return this;
+    }
+
+    public sfab_FabricatedSObject setField( String fieldName, Object value ) {
+        Schema.SobjectField theField = Schema.getGlobalDescribe()
+                                                .get( String.valueOf( sType ) )
+                                                ?.getDescribe()
+                                                ?.fields
+                                                ?.getMap()
+                                                ?.get( fieldName );
+        if ( theField == null ) {
+            throw new FieldDoesNotExistException( 'The field ' + String.valueOf( sType ) + '.' + fieldName + ' does not exist' );
+        }
+
+        return setField( theField, value );
     }
 
     public sfab_FabricatedSObject setParent(String relationshipName, sfab_FabricatedSObject fabricatedParent) {

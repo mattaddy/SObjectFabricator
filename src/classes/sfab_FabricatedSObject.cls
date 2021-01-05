@@ -29,6 +29,14 @@ public virtual class sfab_FabricatedSObject {
         return setField( fieldName, value );
     }
 
+    public sfab_FabricatedSObject set( String relationshipName, sfab_FabricatedSObject fabricatedParent ) {
+        return setParent( relationshipName, fabricatedParent );
+    }
+
+    public sfab_FabricatedSObject set( String relationshipName, List<sfab_FabricatedSObject> fabricatedChildren) {
+        return setChildren( relationshipName, fabricatedChildren );
+    }
+
     public sfab_FabricatedSObject setField(Schema.SObjectField field, Object value) {
         nodes.add(new sfab_FieldValuePairNode(field, value));
         return this;

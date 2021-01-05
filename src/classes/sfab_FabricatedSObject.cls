@@ -13,6 +13,11 @@ public virtual class sfab_FabricatedSObject {
         set(fields);
     }
 
+    public sfab_FabricatedSObject(Type sType, Map<String, Object> fields) {
+        this(sType);
+        set(fields);
+    }
+
     @testVisible protected sfab_FabricatedSObject(Type sType, List<sfab_FabricatedSObjectNode> nodes) {
         this.sType = sType;
         this.nodes = nodes;

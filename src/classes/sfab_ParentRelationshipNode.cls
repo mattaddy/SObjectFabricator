@@ -11,7 +11,6 @@ public class sfab_ParentRelationshipNode implements sfab_FabricatedSObjectNode {
         return fieldName;
     }
 
-    // TODO: this breaks the law of demeter... do I care?
     public sfab_FabricatedSObject getFabricatedObject() {
         return parent;
     }

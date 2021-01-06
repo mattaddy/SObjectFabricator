@@ -117,7 +117,6 @@ private class sfab_FabricatedSObjectTest {
         try {
             fabricatedSObject.set('Name.NotARelationship', 'name is not a relationship');
         }
-        // TODO: change this to a sfab_FabricatedSObject exception
         catch ( sfab_FabricatedSObject.ParentRelationshipDoesNotExistException e ) {
             exceptionThrown = true;
             exceptionMessage = e.getMessage();
@@ -133,8 +132,7 @@ private class sfab_FabricatedSObjectTest {
         try {
             fabricatedSObject.set('Owner.Username', 'cannot create polymorphic ones automatically');
         }
-        // TODO: change this to a sfab_FabricatedSObject exception
-        catch ( ObjectFieldRegister.ParentRelationshipObjectCannotBeAutoCreatedException e ) {
+        catch ( sfab_FabricatedSObject.ParentRelationshipObjectCannotBeAutoCreatedException e ) {
             exceptionThrown = true;
             exceptionMessage = e.getMessage();
         }

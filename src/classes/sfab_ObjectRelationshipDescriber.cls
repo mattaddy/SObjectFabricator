@@ -1,30 +1,30 @@
-public with sharing class ObjectFieldRegister {
+public with sharing class sfab_ObjectRelationshipDescriber {
 
     public class ParentRelationshipObjectCannotBeAutoCreatedException extends Exception {}
 
-    static Map<String,ObjectRelationshipDescriber> objectRelationshipDescribers = new Map<String,ObjectRelationshipDescriber>();
+    static Map<String,SingleObjectRelationshipDescriber> SingleObjectRelationshipDescribers = new Map<String,SingleObjectRelationshipDescriber>();
 
     public Boolean objectHasParentRelationshipNamed( String objectName, String relationshipName ) {
-        ensureObjectRelationshipDescriberIsInitialised( objectName );
+        ensureSingleObjectRelationshipDescriberIsInitialised( objectName );
         return getRelationshipDescriber( objectName ).hasParentRelationshipNamed( relationshipName );
     }
 
     public sfab_FabricatedSObject buildFabricatedObjectForRelationship( String objectName, String relationshipName ) {
-        ensureObjectRelationshipDescriberIsInitialised( objectName );
+        ensureSingleObjectRelationshipDescriberIsInitialised( objectName );
         return getRelationshipDescriber( objectName ).buildFabricatedObjectForRelationship( relationshipName );
     }
 
-    public void ensureObjectRelationshipDescriberIsInitialised( String objectName ) {
-        if ( ! objectRelationshipDescribers.containsKey( objectName ) ) {
-            objectRelationshipDescribers.put( objectName, new ObjectRelationshipDescriber( objectName ) );
+    public void ensureSingleObjectRelationshipDescriberIsInitialised( String objectName ) {
+        if ( ! SingleObjectRelationshipDescribers.containsKey( objectName ) ) {
+            SingleObjectRelationshipDescribers.put( objectName, new SingleObjectRelationshipDescriber( objectName ) );
         }
     }
 
-    public ObjectRelationshipDescriber getRelationshipDescriber( String objectName ) {
-        return objectRelationshipDescribers.get( objectName );
+    public SingleObjectRelationshipDescriber getRelationshipDescriber( String objectName ) {
+        return SingleObjectRelationshipDescribers.get( objectName );
     }
 
-    public class ObjectRelationshipDescriber {
+    public class SingleObjectRelationshipDescriber {
 
         private String objectName;
 
@@ -50,7 +50,7 @@ public with sharing class ObjectFieldRegister {
             set;
         }
 
-        public ObjectRelationshipDescriber( String objectName ) {
+        public SingleObjectRelationshipDescriber( String objectName ) {
             this.objectName = objectName;
         }
 
@@ -107,7 +107,7 @@ public with sharing class ObjectFieldRegister {
 
         public sfab_FabricatedSObject buildFabricatedObject() {
             if ( isPolymorphic() ) {
-                throw new ParentRelationshipObjectCannotBeAutoCreatedException( 'Cannot automatically created a Fabricated Object for ' + getFullName() + ' as it is polymorphic and so not possible to automatically ascertain which SObject to use' );
+                throw new ParentRelationshipObjectCannotBeAutoCreatedException( 'Cannot automatically create a Fabricated Object for the relationship ' + getFullName() + ' as it is polymorphic and so not possible to automatically ascertain which SObject to use' );
             }
             return new sfab_FabricatedSObject( Type.forName( getTargetObjectType() ) );
         }

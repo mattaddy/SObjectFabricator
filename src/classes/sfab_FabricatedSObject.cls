@@ -2,10 +2,11 @@ public virtual class sfab_FabricatedSObject {
     private Type sType;
     @testVisible private Map<String,sfab_FabricatedSObjectNode> nodes = new Map<String,sfab_FabricatedSObjectNode>();
 
-    ObjectFieldRegister objectFieldRegister = new ObjectFieldRegister();
+    sfab_ObjectRelationshipDescriber sfab_ObjectRelationshipDescriber = new sfab_ObjectRelationshipDescriber();
 
     public class FieldDoesNotExistException extends Exception {}
     public class ParentRelationshipDoesNotExistException extends Exception {}
+    public class ParentRelationshipObjectCannotBeAutoCreatedException extends Exception {}
 
     public sfab_FabricatedSObject(Type sType) {
         this.sType = sType;
@@ -122,12 +123,16 @@ public virtual class sfab_FabricatedSObject {
         String relationshipName = fieldName.substringBefore( '.' );
         String childFieldName   = fieldName.substringAfter( '.' );
 
-        if ( !objectFieldRegister.objectHasParentRelationshipNamed( getSobjectName(), relationshipName ) ) {
+        if ( !sfab_ObjectRelationshipDescriber.objectHasParentRelationshipNamed( getSobjectName(), relationshipName ) ) {
             throw new ParentRelationshipDoesNotExistException( 'The parent relationship ' + getSobjectName() + '.' + relationshipName + ' does not exist' );
         }
 
         if ( !nodes.containsKey( relationshipName ) ) {
-            set( relationshipName, objectFieldRegister.buildFabricatedObjectForRelationship( getSobjectName(), relationshipName ) );
+            try {
+                set( relationshipName, sfab_ObjectRelationshipDescriber.buildFabricatedObjectForRelationship( getSobjectName(), relationshipName ) );
+            } catch ( Exception e ) {
+                throw new ParentRelationshipObjectCannotBeAutoCreatedException( 'Could not auto-assign an object for the field ' + fieldName + ': ' + e.getMessage() );
+            }
         }
 
         ((sfab_ParentRelationshipNode)nodes.get( relationshipName ))?.getFabricatedObject()?.set( childFieldName, value );

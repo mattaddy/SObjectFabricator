@@ -94,6 +94,54 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
+    private static void set_whenStringFieldForParent_expectParentAddedToNodes() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Contact.class);
+        fabricatedSObject.set('Account.Id', 'Account-Id-1');
+        fabricatedSObject.set('Account.Name', 'Account-Name');
+        fabricatedSObject.set('Id', 'Contact-Id-1');
+        System.assertEquals(2, fabricatedSObject.nodes.size());
+
+        sfab_ParentRelationshipNode parentNode = ((sfab_ParentRelationshipNode)fabricatedSObject.nodes.get( 'Account' ));
+        System.assertNotEquals(null, parentNode);
+
+        System.assertEquals( 'Account-Id-1', ((sfab_FieldValuePairNode)parentNode.parent.nodes.get( 'Id' )).value );
+        System.assertEquals( 'Account-Name', ((sfab_FieldValuePairNode)parentNode.parent.nodes.get( 'Name' )).value );
+        System.assertEquals( 'Contact-Id-1', ((sfab_FieldValuePairNode)fabricatedSObject.nodes.get( 'Id' )).value );
+    }
+
+    @isTest
+    private static void set_whenStringFieldForParentNotARelationship_expectException() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
+        Boolean exceptionThrown = false;
+        String  exceptionMessage;
+        try {
+            fabricatedSObject.set('Name.NotARelationship', 'name is not a relationship');
+        }
+        // TODO: change this to a sfab_FabricatedSObject exception
+        catch ( sfab_FabricatedSObject.ParentRelationshipDoesNotExistException e ) {
+            exceptionThrown = true;
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionThrown );
+    }
+
+    @isTest
+    private static void set_whenStringFieldForParentPolymorphic_expectException() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Task.class);
+        Boolean exceptionThrown = false;
+        String  exceptionMessage;
+        try {
+            fabricatedSObject.set('Owner.Username', 'cannot create polymorphic ones automatically');
+        }
+        // TODO: change this to a sfab_FabricatedSObject exception
+        catch ( ObjectFieldRegister.ParentRelationshipObjectCannotBeAutoCreatedException e ) {
+            exceptionThrown = true;
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionThrown );
+    }
+
+    @isTest
     private static void set_whenMapSobjectField_expectFieldsAddedToNodes() {
 
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);

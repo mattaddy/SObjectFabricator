@@ -1,6 +1,6 @@
 public with sharing class ObjectFieldRegister {
 
-    class ParentRelationshipObjectCannotBeAutoCreatedException extends Exception {}
+    public class ParentRelationshipObjectCannotBeAutoCreatedException extends Exception {}
 
     static Map<String,ObjectRelationshipDescriber> objectRelationshipDescribers = new Map<String,ObjectRelationshipDescriber>();
 
@@ -99,6 +99,9 @@ public with sharing class ObjectFieldRegister {
         }
 
         public String getTargetObjectType() {
+            if ( !isValid() ) {
+                return null;
+            }
             return fieldDescribe.getReferenceTo()[0].getDescribe().getName();
         }
 

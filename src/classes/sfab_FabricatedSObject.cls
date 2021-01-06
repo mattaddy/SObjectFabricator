@@ -130,7 +130,6 @@ public virtual class sfab_FabricatedSObject {
             set( relationshipName, objectFieldRegister.buildFabricatedObjectForRelationship( getSobjectName(), relationshipName ) );
         }
 
-        // TODO: bit hacky...
         ((sfab_ParentRelationshipNode)nodes.get( relationshipName ))?.getFabricatedObject()?.set( childFieldName, value );
         return this;
     }

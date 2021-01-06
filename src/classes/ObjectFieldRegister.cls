@@ -1,5 +1,7 @@
 public with sharing class ObjectFieldRegister {
 
+    class ParentRelationshipObjectCannotBeAutoCreatedException extends Exception {}
+
     static Map<String,ObjectRelationshipDescriber> objectRelationshipDescribers = new Map<String,ObjectRelationshipDescriber>();
 
     public Boolean objectHasParentRelationshipNamed( String objectName, String relationshipName ) {
@@ -34,14 +36,12 @@ public with sharing class ObjectFieldRegister {
                     Map<String,SObjectField> fields = Schema.getGlobalDescribe().get( objectName ).getDescribe().fields.getMap();
 
                     for ( SObjectField thisField : fields.values() ) {
-                        // push these describe examinations into ParentRelationship
-                        // implement 'representable'
-                        DescribeFieldResult fieldDescribe = thisField.getDescribe();
-                        if ( fieldDescribe.getReferenceTo().size() == 1 ) {
-                            parentRelationships.put( fieldDescribe.getRelationshipName(),
-                                                    new ParentRelationship()
-                                                        .setChildObjectName( objectName )
-                                                        .setFieldDescribe( fieldDescribe ) );
+
+                        ParentRelationship relationship = new ParentRelationship()
+                                                                .setChildObjectName( objectName )
+                                                                .setFieldDescribe( thisField.getDescribe() );
+                        if ( relationship.isValid() ) {
+                            parentRelationships.put( relationship.getName(), relationship );
                         }
                     }
                 }
@@ -86,6 +86,14 @@ public with sharing class ObjectFieldRegister {
             return this;
         }
 
+        public String getName() {
+            return fieldDescribe.getRelationshipName();
+        }
+
+        public String getFullName() {
+            return childObjectName + '.' + getName();
+        }
+
         public String getFieldName() {
             return fieldDescribe.getName();
         }
@@ -95,7 +103,18 @@ public with sharing class ObjectFieldRegister {
         }
 
         public sfab_FabricatedSObject buildFabricatedObject() {
+            if ( isPolymorphic() ) {
+                throw new ParentRelationshipObjectCannotBeAutoCreatedException( 'Cannot automatically created a Fabricated Object for ' + getFullName() + ' as it is polymorphic and so not possible to automatically ascertain which SObject to use' );
+            }
             return new sfab_FabricatedSObject( Type.forName( getTargetObjectType() ) );
+        }
+
+        public Boolean isValid() {
+            return fieldDescribe?.getReferenceTo()?.size() > 0;
+        }
+
+        private Boolean isPolymorphic() {
+            return fieldDescribe.getReferenceTo().size() > 1;
         }
     }
 }

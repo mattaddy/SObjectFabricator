@@ -1,10 +1,14 @@
 public class sfab_ChildRelationshipNode implements sfab_FabricatedSObjectNode {
-    private String fieldName;
-    private List<sfab_FabricatedSObject> children;
+    @testVisible private String fieldName;
+    @testVisible private List<sfab_FabricatedSObject> children;
 
     public sfab_ChildRelationshipNode(String fieldName, List<sfab_FabricatedSObject> children) {
         this.fieldName = fieldName;
         this.children = children;
+    }
+
+    public String getName() {
+        return fieldName;
     }
 
     public Map<String, Object> serialize() {

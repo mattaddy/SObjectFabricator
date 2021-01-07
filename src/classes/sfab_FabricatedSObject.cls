@@ -8,15 +8,38 @@ public virtual class sfab_FabricatedSObject {
     public class ParentRelationshipDoesNotExistException extends Exception {}
     public class ParentRelationshipObjectCannotBeAutoCreatedException extends Exception {}
 
+
+    /**
+    * Constructs a FabricatedSObject of the given type.
+    *
+    * @param Type - The type of SObject to be fabricated (e.g. Contact.class)
+    */
     public sfab_FabricatedSObject(Type sType) {
         this.sType = sType;
     }
 
+    /**
+    * Constructs a FabricatedSObject of the given type, and then sets the fields specified in the given map.
+    *
+    * @param Type - The type of SObject to be fabricated (e.g. Contact.class)
+    * @param Map<Schema.SObjectField,Object> - The fields to set on this object, with the desired values
+    */
     public sfab_FabricatedSObject(Type sType, Map<Schema.SObjectField, Object> fields) {
         this(sType);
         set(fields);
     }
 
+    /**
+    * Constructs a FabricatedSObject of the given type, and then sets the fields and relationships specified in the given map.
+    *
+    *   * Fields can be set by stating the field name (E.g. Name) and passing the correct data-type
+    *   * Parent objects can be set by stating the relationship name (E.g. Account) and passing an sfab_FabricatedSObject.
+    *   * Parent object fields can be set by stating the relationship name followed by the field name (E.g. Account.Name) and passing a value.
+    *   * Child relationships can be set by stating the relationship name (E.g. Contacts) and passing a list of sfab_FabricatedSObjects
+    *
+    * @param Type - The type of SObject to be fabricated (e.g. Contact.class)
+    * @param Map<String,Object> - The fields and relationships to set on this object, with the desired values
+    */
     public sfab_FabricatedSObject(Type sType, Map<String, Object> fields) {
         this(sType);
         set(fields);
@@ -30,9 +53,30 @@ public virtual class sfab_FabricatedSObject {
         }
     }
 
+    /**
+    * Set the specified field to the specified value.
+    *
+    * Note: only fields on this object's type may be set.  Only the 'name' of the field is used and expected results may
+    * occur if you attempt to pass a field on a different object.
+    *
+    * @param Schema.SObjectField - The field to set
+    * @param Object - The value that the field should be set to
+    */
     public sfab_FabricatedSObject set( Schema.SObjectField field, Object value) {
         return setField( field, value );
     }
+
+    /**
+    * Set the specified field to the specified value.
+    *
+    *   * Fields can be set by stating the field name (E.g. Name) and passing the correct data-type
+    *   * Parent objects can be set by stating the relationship name (E.g. Account) and passing an sfab_FabricatedSObject.
+    *   * Parent object fields can be set by stating the relationship name followed by the field name (E.g. Account.Name) and passing a value.
+    *   * Child relationships can be set by stating the relationship name (E.g. Contacts) and passing a list of sfab_FabricatedSObjects
+    *
+    * @param Schema.SObjectField - The field to set
+    * @param Object - The value that the field should be set to
+    */
 
     public sfab_FabricatedSObject set( String fieldName, Object value ) {
 

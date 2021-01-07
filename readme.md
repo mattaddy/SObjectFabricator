@@ -45,8 +45,14 @@ fabricatedAccount.set( Account.LastModifiedDate, Date.newInstance( 2017, 1, 1 ) 
 // Set fields using the names of the fields:
 fabricatedAccount.set( 'Name', 'The Account Name' );
 
-// Set lookup / master detail relationships
+// Set lookup / master detail relationships explicitly
 fabricatedAccount.set( 'Owner', new sfab_FabricatedSObject( User.class ).set( 'Username', 'TheOwner' ) );
+
+// Set lookup / master detail relationships implicitly
+fabricatedAccount.set( 'Owner.Alias', 'alias' );
+
+// Set multi-leveled lookup / master detail relationships implicitly
+fabricatedAccount.set( 'Owner.Profile.Name', 'System Administrator' );
 
 // Set child relationships
 fabricatedAccount.set( 'Opportunities', new List<sfab_FabricatedSObject> {
@@ -60,8 +66,11 @@ Account sObjectAccount = (Account)fabricatedAccount.toSObject();
 // Account:{LastModifiedDate=2017-01-01 00:00:00, Id=Id-1, Name=The Account Name}
 System.debug( sObjectAccount );
 
-// User:{Username=TheOwner}
+// User:{Username=TheOwner, Alias=alias}
 System.debug( sObjectAccount.Owner );
+
+// Profile:{Name=System Administrator}
+System.debug( sObjectAccount.Owner.Profile );
 
 // (Opportunity:{Id=OppId-1}, Opportunity:{Id=OppId-2})
 System.debug( sObjectAccount.Opportunities );

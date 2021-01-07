@@ -115,6 +115,7 @@ public virtual class sfab_FabricatedSObject {
         return fields;
     }
 
+    @testVisible
     private String getSobjectName() {
         return String.valueOf( sType );
     }

@@ -162,14 +162,14 @@ private class sfab_FabricatedSObjectTest {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
 
         Map<String,Object> fields = new Map<String,Object> {
-                'Id'            =>  'Id-1',
-                'Name'          =>  'Foo',
-                'Contacts'      =>  new List<sfab_FabricatedSObject>{
-                                        new sfab_FabricatedSObject( Contact.class )
-                                            .set( 'Name', 'ContactName' )
-                                    },
-                'Owner'         =>  new sfab_FabricatedSObject( User.class )
-                                        .set( 'Username', 'The user' )
+                'Id'        =>  'Id-1',
+                'Name'      =>  'Foo',
+                'Contacts'  =>  new List<sfab_FabricatedSObject>{
+                                    new sfab_FabricatedSObject( Contact.class )
+                                        .set( 'Name', 'ContactName' )
+                                },
+                'Owner'     =>  new sfab_FabricatedSObject( User.class )
+                                .set( 'Username', 'The user' )
         };
 
         fabricatedSObject.set(fields);
@@ -179,6 +179,54 @@ private class sfab_FabricatedSObjectTest {
         System.assertEquals( 'Foo', ((sfab_FieldValuePairNode)fabricatedSObject.nodes.get( 'Name' )).value, 'set, when given a map indexed by string, will add each of the fields, setting the value of a simple field' );
         System.assertEquals( 1, ((sfab_ChildRelationshipNode)fabricatedSObject.nodes.get( 'Contacts' )).children.size(), 'set, when given a map indexed by string, will add each of the fields, setting the value of a child relationship field' );
         System.assertEquals( 1, ((sfab_ParentRelationshipNode)fabricatedSObject.nodes.get( 'Owner' )).parent.nodes.size(), 'set, when given a map indexed by string, will add each of the fields, setting the value of a parent relationship field' );
+    }
+
+    @isTest
+    private static void set_whenMapString_expectMultiLevelParentFieldsAddedToNodes() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
+
+        Map<String,Object> fields = new Map<String,Object> {
+                'Owner.Contact'             =>  new sfab_FabricatedSObject( Contact.class )
+                                                    .set( 'LastName', 'TheOwnerLast' ),
+                'Owner.Contact.FirstName'   =>  'TheOwnerFirst'
+        };
+
+        fabricatedSObject.set(fields);
+
+        System.assertEquals( 1, fabricatedSObject.nodes.size() );
+
+        sfab_FabricatedSObject fabricatedOwner   = ((sfab_ParentRelationshipNode)fabricatedSObject.nodes.get( 'Owner' )).parent;
+        System.assertEquals( 1, fabricatedOwner.nodes.size() );
+
+        sfab_FabricatedSObject fabricatedContact = ((sfab_ParentRelationshipNode)fabricatedOwner.nodes.get( 'Contact' )).parent;
+        System.assertEquals( 'TheOwnerLast', ((sfab_FieldValuePairNode)fabricatedContact.nodes.get( 'LastName' )).value );
+        System.assertEquals( 'TheOwnerFirst', ((sfab_FieldValuePairNode)fabricatedContact.nodes.get( 'FirstName' )).value );
+    }
+
+    @isTest
+    private static void set_whenMapString_expectMultiLevelChildFieldsAddedToNodes() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Contact.class);
+
+        Map<String,Object> fields = new Map<String,Object> {
+                'Account.Opportunities'     =>  new List<sfab_FabricatedSObject>{
+                                                    new sfab_FabricatedSObject( Opportunity.class )
+                                                        .set( 'Name', 'The Opportunity' )
+                                                }
+        };
+
+        fabricatedSObject.set(fields);
+
+        System.assertEquals( 1, fabricatedSObject.nodes.size() );
+
+        sfab_FabricatedSObject fabricatedAccount   = ((sfab_ParentRelationshipNode)fabricatedSObject.nodes.get( 'Account' )).parent;
+        System.assertEquals( 1, fabricatedAccount.nodes.size() );
+
+        List<sfab_FabricatedSObject> fabricatedOportunities = ((sfab_ChildRelationshipNode)fabricatedAccount.nodes.get( 'Opportunities' )).children;
+        System.assertEquals( 1, fabricatedOportunities.size() );
+
+        System.assertEquals( 'The Opportunity', ((sfab_FieldValuePairNode)fabricatedOportunities[0].nodes.get( 'Name' )).value );
     }
 
     @isTest

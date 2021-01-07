@@ -36,8 +36,22 @@ public virtual class sfab_FabricatedSObject {
 
     public sfab_FabricatedSObject set( String fieldName, Object value ) {
 
+        // This looks like it duplicates the overloading of set, but unfortunately Apex determines the method to call
+        // based on the static type of a parameter rather than the dynamic type.
+        // I.E. if a passed parameter's value is declared as 'Object' it will always call the 'Object'
+        // defined version of an overloaded method even when a more specific type matches.
+        // This means that 'setParentField' will always call this version of the overloaded method regardless
+        // of the contents of the value parameter.  So we need to manually check the instance type in the code.
         if ( fieldName.contains( '.' ) ) {
             return setParentField( fieldName, value );
+        }
+
+        if ( value instanceOf List<sfab_FabricatedSObject> ) {
+            return setChildren( fieldName, (List<sfab_FabricatedSObject>)value );
+        }
+
+        if ( value instanceOf sfab_FabricatedSObject ) {
+            return setParent( fieldName, (sfab_FabricatedSObject)value );
         }
 
         return setField( fieldName, value );
@@ -61,15 +75,7 @@ public virtual class sfab_FabricatedSObject {
     public sfab_FabricatedSObject set( Map<String, Object> fields ) {
         for (String fieldName : fields.keySet()) {
             Object value = fields.get( fieldName );
-            if ( value instanceOf sfab_FabricatedSObject ) {
-                set( fieldName, (sfab_FabricatedSObject)value );
-
-            } else if ( value instanceOf List<sfab_FabricatedSObject> ) {
-                set( fieldName, (List<sfab_FabricatedSObject>)value );
-
-            } else {
-                set( fieldName, fields.get(fieldName) );
-            }
+            set( fieldName, fields.get(fieldName) );
         }
         return this;
     }
@@ -115,8 +121,7 @@ public virtual class sfab_FabricatedSObject {
         return fields;
     }
 
-    @testVisible
-    private String getSobjectName() {
+    public String getSobjectName() {
         return String.valueOf( sType );
     }
 

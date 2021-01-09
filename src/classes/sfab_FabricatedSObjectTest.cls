@@ -220,12 +220,10 @@ private class sfab_FabricatedSObjectTest {
 
         System.assertEquals( 1, fabricatedSObject.nodes.size() );
 
-        sfab_FabricatedSObject fabricatedAccount   = getParentFromObject( fabricatedSObject, 'Account' );
-        System.assertEquals( 1, fabricatedAccount.nodes.size() );
-
+        sfab_FabricatedSObject       fabricatedAccount      = getParentFromObject( fabricatedSObject, 'Account' );
         List<sfab_FabricatedSObject> fabricatedOportunities = getChildrenFromObject( fabricatedAccount, 'Opportunities' );
-        System.assertEquals( 1, fabricatedOportunities.size() );
 
+        System.assertEquals( 1, fabricatedOportunities.size() );
         System.assertEquals( 'The Opportunity', getFieldValueFromObject( fabricatedOportunities[0], 'Name' ) );
     }
 

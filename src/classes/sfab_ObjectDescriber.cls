@@ -1,4 +1,4 @@
-public with sharing class sfab_ObjectRelationshipDescriber {
+public with sharing class sfab_ObjectDescriber {
 
     public class ParentRelationshipObjectCannotBeAutoCreatedException extends Exception {}
     public class ParentRelationshipDoesNotExistException extends Exception {}

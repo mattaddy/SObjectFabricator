@@ -10,8 +10,8 @@
         <members>sfab_FabricatedSObjectTest</members>
         <members>sfab_FieldValuePairNode</members>
         <members>sfab_FieldValuePairNodeTest</members>
-        <members>sfab_ObjectRelationshipDescriber</members>
-        <members>sfab_ObjectRelationshipDescriberTest</members>
+        <members>sfab_ObjectDescriber</members>
+        <members>sfab_ObjectDescriberTest</members>
         <members>sfab_ParentRelationshipNode</members>
         <members>sfab_ParentRelationshipNodeTest</members>
         <name>ApexClass</name>

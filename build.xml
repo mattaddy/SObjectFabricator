@@ -3,8 +3,8 @@
     
     <taskdef uri="antlib:com.salesforce"
         resource="com/salesforce/antlib.xml"
-        classpath="${basedir}/lib/ant-salesforce-40.0.jar"/>
-        
+        classpath="${basedir}/lib/ant-salesforce-50.0.jar"/>
+
     <target name="deploy">
         <sf:deploy 
             username="${sf.username}" 

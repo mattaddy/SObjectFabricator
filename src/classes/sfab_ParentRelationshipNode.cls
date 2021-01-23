@@ -11,8 +11,8 @@ public class sfab_ParentRelationshipNode implements sfab_FabricatedSObjectNode {
         return fieldName;
     }
 
-    public sfab_FabricatedSObject getFabricatedObject() {
-        return parent;
+    public sfab_FabricatedSObject setField( String fieldname, Object value ) {
+        return parent.set( fieldname, value );
     }
 
     public Map<String, Object> serialize() {

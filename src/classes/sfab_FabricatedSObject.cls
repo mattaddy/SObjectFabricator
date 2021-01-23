@@ -47,11 +47,11 @@ public virtual class sfab_FabricatedSObject {
         set(fields);
     }
 
-    @testVisible protected sfab_FabricatedSObject(Type sType, List<sfab_FabricatedSObjectNode> nodes) {
+    @testVisible protected sfab_FabricatedSObject( Type sType, List<sfab_FabricatedSObjectNode> nodes ) {
         this.sType = sType;
         this.nodes = new Map<String,sfab_FabricatedSObjectNode>();
         for ( sfab_FabricatedSObjectNode node : nodes ) {
-            this.nodes.put( node.getName(), node );
+            setNode( node.getName(), node );
         }
     }
 
@@ -135,6 +135,12 @@ public virtual class sfab_FabricatedSObject {
         return setChildren( relationshipName, fabricatedChildren );
     }
 
+    // TODO: document
+    // TODO: test
+    public sfab_FabricatedSObject add( String relationshipName, sfab_FabricatedSObject fabricatedChild ) {
+        return addChild( relationshipName, fabricatedChild );
+    }
+
     /**
     * Set the specified field, which exists directly on this object, to the specified value.
     *
@@ -182,8 +188,7 @@ public virtual class sfab_FabricatedSObject {
     * @return sfab_FabricatedSObject - This, allowing for a fluent interface
     */
     public sfab_FabricatedSObject setField(Schema.SObjectField field, Object value) {
-        nodes.put( field.getDescribe().getName(), new sfab_FieldValuePairNode(field, value));
-        return this;
+        return setNode( field.getDescribe().getName(), new sfab_FieldValuePairNode(field, value));
     }
 
     /**
@@ -220,8 +225,7 @@ public virtual class sfab_FabricatedSObject {
     * @return sfab_FabricatedSObject - This, allowing for a fluent interface
     */
     public sfab_FabricatedSObject setParent(String relationshipName, sfab_FabricatedSObject fabricatedParent) {
-        nodes.put( relationshipName, new sfab_ParentRelationshipNode(relationshipName, fabricatedParent));
-        return this;
+        return setNode( relationshipName, new sfab_ParentRelationshipNode(relationshipName, fabricatedParent));
     }
 
     /**
@@ -235,7 +239,22 @@ public virtual class sfab_FabricatedSObject {
     * @return sfab_FabricatedSObject - This, allowing for a fluent interface
     */
     public sfab_FabricatedSObject setChildren(String relationshipName, List<sfab_FabricatedSObject> fabricatedChildren) {
-        nodes.put( relationshipName, new sfab_ChildRelationshipNode(relationshipName, fabricatedChildren));
+        return setNode( relationshipName, new sfab_ChildRelationshipNode(relationshipName, fabricatedChildren));
+    }
+
+    // TODO: document
+    // TODO: test
+    public sfab_FabricatedSObject addChild( String relationshipName, sfab_FabricatedSObject fabricatedChild ) {
+
+        // TODO: can this do some navigation down fields too?
+        //
+        // so we can: contact.add( 'Account.Opportunities', theOpportunity )
+        //
+        if ( !nodeExists( relationshipName ) ) {
+            setNode( relationshipName, new sfab_ChildRelationshipNode( relationshipName ) );
+        }
+        // TODO: needs some protection that the node is a sfab_ChildRelationshipNode
+        getChildRelationshipNode( relationshipName ).addChild( fabricatedChild );
         return this;
     }
 
@@ -276,7 +295,7 @@ public virtual class sfab_FabricatedSObject {
             throw new ParentRelationshipDoesNotExistException( 'The parent relationship ' + getSobjectName() + '.' + relationshipName + ' does not exist' );
         }
 
-        if ( !nodes.containsKey( relationshipName ) ) {
+        if ( ! nodeExists( relationshipName ) ) {
             try {
                 set( relationshipName, sfab_ObjectDescriber.buildFabricatedObjectForRelationship( getSobjectName(), relationshipName ) );
             } catch ( Exception e ) {
@@ -284,7 +303,32 @@ public virtual class sfab_FabricatedSObject {
             }
         }
 
-        ((sfab_ParentRelationshipNode)nodes.get( relationshipName ))?.getFabricatedObject()?.set( childFieldName, value );
+        getParentRelationshipNode( relationshipName ).setField( childFieldName, value );
         return this;
     }
+
+    // TODO: extract the class sfab_FabricatedSObjectNodes?
+    private Boolean nodeExists( String nodeName ) {
+        return nodes.containsKey( nodeName );
+    }
+
+    private sfab_FabricatedSObject setNode( String nodeName, sfab_FabricatedSObjectNode node ) {
+        nodes.put( nodeName, node );
+        return this;
+    }
+
+    private sfab_FabricatedSObjectNode getNode( String nodeName ) {
+        return nodes.get( nodeName );
+    }
+
+    // TODO: some kind of reasonable error if it's not a child relationship node
+    private sfab_ParentRelationshipNode getParentRelationshipNode( String relationshipName ) {
+        return ((sfab_ParentRelationshipNode)getNode( relationshipName ));
+    }
+
+    // TODO: some kind of reasonable error if it's not a child relationship node
+    private sfab_ChildRelationshipNode getChildRelationshipNode( String relationshipName ) {
+        return ((sfab_ChildRelationshipNode)getNode( relationshipName ));
+    }
+
 }

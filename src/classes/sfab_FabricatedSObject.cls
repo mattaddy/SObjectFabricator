@@ -322,13 +322,20 @@ public virtual class sfab_FabricatedSObject {
     }
 
     // TODO: some kind of reasonable error if it's not a child relationship node
+    @testVisible
     private sfab_ParentRelationshipNode getParentRelationshipNode( String relationshipName ) {
         return ((sfab_ParentRelationshipNode)getNode( relationshipName ));
     }
 
     // TODO: some kind of reasonable error if it's not a child relationship node
+    @testVisible
     private sfab_ChildRelationshipNode getChildRelationshipNode( String relationshipName ) {
         return ((sfab_ChildRelationshipNode)getNode( relationshipName ));
+    }
+
+    @testVisible
+    private Integer getNumberOfNodes() {
+        return nodes.size();
     }
 
 }

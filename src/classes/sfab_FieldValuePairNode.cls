@@ -11,6 +11,11 @@ public class sfab_FieldValuePairNode implements sfab_FabricatedSObjectNode {
         return field.getDescribe().getName();
     }
 
+    // TODO: test
+    public Object getValue() {
+        return value;
+    }
+
     public Map<String, Object> serialize() {
         return new Map<String, Object> { field.getDescribe().getName() => value };
     }

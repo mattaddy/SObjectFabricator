@@ -11,6 +11,11 @@ public class sfab_ParentRelationshipNode implements sfab_FabricatedSObjectNode {
         return fieldName;
     }
 
+    // TODO: test
+    public sfab_FabricatedSObject getParent() {
+        return parent;
+    }
+
     public sfab_FabricatedSObject setField( String fieldName, Object value ) {
         return parent.set( fieldName, value );
     }

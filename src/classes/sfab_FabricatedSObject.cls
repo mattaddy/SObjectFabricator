@@ -321,21 +321,40 @@ public virtual class sfab_FabricatedSObject {
         return nodes.get( nodeName );
     }
 
-    // TODO: some kind of reasonable error if it's not a child relationship node
-    @testVisible
+    private sfab_FieldValuePairNode getFieldNode( String fieldName ) {
+        return ((sfab_FieldValuePairNode)getNode( fieldName ));
+    }
+
     private sfab_ParentRelationshipNode getParentRelationshipNode( String relationshipName ) {
         return ((sfab_ParentRelationshipNode)getNode( relationshipName ));
     }
 
-    // TODO: some kind of reasonable error if it's not a child relationship node
-    @testVisible
     private sfab_ChildRelationshipNode getChildRelationshipNode( String relationshipName ) {
         return ((sfab_ChildRelationshipNode)getNode( relationshipName ));
+    }
+
+    @testVisible
+    private Object getFieldValue( String fieldName ) {
+        return getFieldNode( fieldName )?.getValue();
+    }
+
+    @testVisible
+    private sfab_FabricatedSObject getParent( String relationshipName ) {
+        return getParentRelationshipNode( relationshipName )?.getParent();
+    }
+
+    @testVisible
+    private List<sfab_FabricatedSObject> getChildren( String relationshipName ) {
+        return getChildRelationshipNode( relationshipName )?.getChildren();
+    }
+
+    @testVisible
+    private Integer getNumberOfChildren( String relationshipName ) {
+        return getChildRelationshipNode( relationshipName )?.getNumberOfChildren();
     }
 
     @testVisible
     private Integer getNumberOfNodes() {
         return nodes.size();
     }
-
 }

@@ -51,7 +51,7 @@ private class sfab_FabricatedSObjectTest {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.setField(Account.Id, 'Id-1');
         System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
-        System.assertEquals( 'Id-1', getFieldValueFromObject( fabricatedSObject, 'Id' ) );
+        System.assertEquals( 'Id-1', fabricatedSObject.getFieldValue( 'Id' ) );
     }
 
     @isTest
@@ -59,7 +59,7 @@ private class sfab_FabricatedSObjectTest {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.setField('Id', 'Id-1');
         System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
-        System.assertEquals( 'Id-1', getFieldValueFromObject( fabricatedSObject, 'Id' ) );
+        System.assertEquals( 'Id-1', fabricatedSObject.getFieldValue( 'Id' ) );
     }
 
     @isTest
@@ -82,7 +82,7 @@ private class sfab_FabricatedSObjectTest {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.set(Account.Id, 'Id-1');
         System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
-        System.assertEquals( 'Id-1', getFieldValueFromObject( fabricatedSObject, 'Id' ) );
+        System.assertEquals( 'Id-1', fabricatedSObject.getFieldValue( 'Id' ) );
     }
 
     @isTest
@@ -90,7 +90,7 @@ private class sfab_FabricatedSObjectTest {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.set('Id', 'Id-1');
         System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
-        System.assertEquals( 'Id-1', getFieldValueFromObject( fabricatedSObject, 'Id' ) );
+        System.assertEquals( 'Id-1', fabricatedSObject.getFieldValue( 'Id' ) );
     }
 
     @isTest
@@ -101,12 +101,12 @@ private class sfab_FabricatedSObjectTest {
         fabricatedSObject.set('Id', 'Contact-Id-1');
         System.assertEquals(2, fabricatedSObject.getNumberOfNodes());
 
-        sfab_FabricatedSObject fabricatedAccount = getParentFromObject( fabricatedSObject, 'Account' );
+        sfab_FabricatedSObject fabricatedAccount = fabricatedSObject.getParent( 'Account' );
         System.assertNotEquals(null, fabricatedAccount);
 
-        System.assertEquals( 'Account-Id-1', getFieldValueFromObject( fabricatedAccount, 'Id' ) );
-        System.assertEquals( 'Account-Name', getFieldValueFromObject( fabricatedAccount, 'Name' ) );
-        System.assertEquals( 'Contact-Id-1', getFieldValueFromObject( fabricatedSObject, 'Id' ) );
+        System.assertEquals( 'Account-Id-1', fabricatedAccount.getFieldValue( 'Id' ) );
+        System.assertEquals( 'Account-Name', fabricatedAccount.getFieldValue( 'Name' ) );
+        System.assertEquals( 'Contact-Id-1', fabricatedSObject.getFieldValue( 'Id' ) );
     }
 
     @isTest
@@ -152,8 +152,8 @@ private class sfab_FabricatedSObjectTest {
         fabricatedSObject.set(fields);
         System.assertEquals( fields.size(), fabricatedSObject.getNumberOfNodes());
 
-        System.assertEquals( 'Id-1', getFieldValueFromObject( fabricatedSObject, 'Id' ) );
-        System.assertEquals( 'Foo', getFieldValueFromObject( fabricatedSObject, 'Name' ) );
+        System.assertEquals( 'Id-1', fabricatedSObject.getFieldValue( 'Id' ) );
+        System.assertEquals( 'Foo', fabricatedSObject.getFieldValue( 'Name' ) );
     }
 
     @isTest
@@ -175,10 +175,10 @@ private class sfab_FabricatedSObjectTest {
         fabricatedSObject.set(fields);
         System.assertEquals( 4, fabricatedSObject.getNumberOfNodes(), 'set, when given a map indexed by string, will add each of the fields' );
 
-        System.assertEquals( 'Id-1', getFieldValueFromObject( fabricatedSObject, 'Id' ), 'set, when given a map indexed by string, will add each of the fields, setting the value of a simple field' );
-        System.assertEquals( 'Foo', getFieldValueFromObject( fabricatedSObject, 'Name' ), 'set, when given a map indexed by string, will add each of the fields, setting the value of a simple field' );
-        System.assertEquals( 1, getChildrenFromObject( fabricatedSObject, 'Contacts' ).size(), 'set, when given a map indexed by string, will add each of the fields, setting the value of a child relationship field' );
-        System.assertEquals( 1, getParentFromObject( fabricatedSObject, 'Owner' ).getNumberOfNodes(), 'set, when given a map indexed by string, will add each of the fields, setting the value of a parent relationship field' );
+        System.assertEquals( 'Id-1', fabricatedSObject.getFieldValue( 'Id' ), 'set, when given a map indexed by string, will add each of the fields, setting the value of a simple field' );
+        System.assertEquals( 'Foo', fabricatedSObject.getFieldValue( 'Name' ), 'set, when given a map indexed by string, will add each of the fields, setting the value of a simple field' );
+        System.assertEquals( 1, fabricatedSObject.getNumberOfChildren( 'Contacts' ), 'set, when given a map indexed by string, will add each of the fields, setting the value of a child relationship field' );
+        System.assertEquals( 1, fabricatedSObject.getParent( 'Owner' ).getNumberOfNodes(), 'set, when given a map indexed by string, will add each of the fields, setting the value of a parent relationship field' );
     }
 
     @isTest
@@ -196,12 +196,12 @@ private class sfab_FabricatedSObjectTest {
 
         System.assertEquals( 1, fabricatedSObject.getNumberOfNodes() );
 
-        sfab_FabricatedSObject fabricatedOwner   = getParentFromObject( fabricatedSObject, 'Owner' );
+        sfab_FabricatedSObject fabricatedOwner   = fabricatedSObject.getParent( 'Owner' );
         System.assertEquals( 1, fabricatedOwner.getNumberOfNodes() );
 
-        sfab_FabricatedSObject fabricatedContact = getParentFromObject( fabricatedOwner, 'Contact' );
-        System.assertEquals( 'TheOwnerLast', getFieldValueFromObject( fabricatedContact, 'LastName' ) );
-        System.assertEquals( 'TheOwnerFirst', getFieldValueFromObject( fabricatedContact, 'FirstName' ) );
+        sfab_FabricatedSObject fabricatedContact = fabricatedOwner.getParent( 'Contact' );
+        System.assertEquals( 'TheOwnerLast', fabricatedContact.getFieldValue( 'LastName' ) );
+        System.assertEquals( 'TheOwnerFirst', fabricatedContact.getFieldValue( 'FirstName' ) );
     }
 
     @isTest
@@ -220,11 +220,11 @@ private class sfab_FabricatedSObjectTest {
 
         System.assertEquals( 1, fabricatedSObject.getNumberOfNodes() );
 
-        sfab_FabricatedSObject       fabricatedAccount      = getParentFromObject( fabricatedSObject, 'Account' );
-        List<sfab_FabricatedSObject> fabricatedOportunities = getChildrenFromObject( fabricatedAccount, 'Opportunities' );
+        sfab_FabricatedSObject       fabricatedAccount      = fabricatedSObject.getParent( 'Account' );
+        List<sfab_FabricatedSObject> fabricatedOportunities = fabricatedAccount.getChildren( 'Opportunities' );
 
         System.assertEquals( 1, fabricatedOportunities.size() );
-        System.assertEquals( 'The Opportunity', getFieldValueFromObject( fabricatedOportunities[0], 'Name' ) );
+        System.assertEquals( 'The Opportunity', fabricatedOportunities[0].getFieldValue( 'Name' ) );
     }
 
     @isTest
@@ -251,10 +251,10 @@ private class sfab_FabricatedSObjectTest {
     @isTest
     private static void addChild_expectObjectsAdded() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
-        fabricatedSObject.addChild('Opportunites', new sfab_FabricatedSObject(Opportunity.class));
-        fabricatedSObject.addChild('Opportunites', new sfab_FabricatedSObject(Opportunity.class));
+        fabricatedSObject.addChild('Opportunities', new sfab_FabricatedSObject(Opportunity.class));
+        fabricatedSObject.addChild('Opportunities', new sfab_FabricatedSObject(Opportunity.class));
         System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
-        System.assertEquals(1, getChildrenFromObject( fabricatedSObject, 'Opportunitities').size() );
+        System.assertEquals(2, fabricatedSObject.getNumberOfChildren( 'Opportunities' ) );
     }
 
     @isTest
@@ -262,17 +262,5 @@ private class sfab_FabricatedSObjectTest {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.setChildren('Opportunites', new List<sfab_FabricatedSObject>());
         System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
-    }
-
-    private static Object getFieldValueFromObject( sfab_FabricatedSObject theObject, String fieldName ) {
-        return ((sfab_FieldValuePairNode)theObject?.nodes?.get( fieldName ))?.value;
-    }
-
-    private static sfab_FabricatedSObject getParentFromObject( sfab_FabricatedSObject theObject, String relationshipName ) {
-        return ((sfab_ParentRelationshipNode)theObject?.nodes?.get( relationshipName ))?.parent;
-    }
-
-    private static List<sfab_FabricatedSObject> getChildrenFromObject( sfab_FabricatedSObject theObject, String relationshipName ) {
-        return ((sfab_ChildRelationshipNode)theObject?.getChildRelationshipNode( relationshipName ))?.children;
     }
 }

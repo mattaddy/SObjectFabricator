@@ -23,6 +23,16 @@ public class sfab_ChildRelationshipNode implements sfab_FabricatedSObjectNode {
         return fieldName;
     }
 
+    // TODO: test
+    public Integer getNumberOfChildren() {
+        return children.size();
+    }
+
+    // TODO: test
+    public List<sfab_FabricatedSObject> getChildren() {
+        return children;
+    }
+
     public Map<String, Object> serialize() {
         List<Map<String, Object>> serializedChildren = new List<Map<String, Object>>();
 

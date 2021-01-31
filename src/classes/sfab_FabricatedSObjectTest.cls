@@ -242,7 +242,14 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
-    private static void setChildren_expectFieldAdded() {
+    private static void setChildren_expectChildrenSet() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
+        fabricatedSObject.setChildren('Opportunites', new List<sfab_FabricatedSObject>());
+        System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
+    }
+
+    @isTest
+    private static void set_whenChild_expectChildSet() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.setChildren('Opportunites', new List<sfab_FabricatedSObject>());
         System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
@@ -258,9 +265,23 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
-    private static void set_whenChild_expectFieldAdded() {
+    private static void add_expectObjectsAdded() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
-        fabricatedSObject.setChildren('Opportunites', new List<sfab_FabricatedSObject>());
+        fabricatedSObject.add('Opportunities', new sfab_FabricatedSObject(Opportunity.class));
+        fabricatedSObject.add('Opportunities', new sfab_FabricatedSObject(Opportunity.class));
         System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
+        System.assertEquals(2, fabricatedSObject.getNumberOfChildren( 'Opportunities' ) );
+    }
+
+    @isTest
+    private static void add_whenAParentsChildIsSpecified_expectObjectsAdded() {
+        sfab_FabricatedSObject fabricatedContact = new sfab_FabricatedSObject(Contact.class);
+        fabricatedContact.add('Account.Opportunities', new sfab_FabricatedSObject(Opportunity.class));
+        fabricatedContact.add('Account.Opportunities', new sfab_FabricatedSObject(Opportunity.class));
+        System.assertEquals(1, fabricatedContact.getNumberOfNodes());
+
+        sfab_FabricatedSObject fabricatedAccount = fabricatedContact.getParent( 'Account' );
+        System.assertEquals(1, fabricatedAccount.getNumberOfNodes());
+        System.assertEquals(2, fabricatedAccount.getNumberOfChildren( 'Opportunities' ) );
     }
 }

@@ -2,11 +2,12 @@ public virtual class sfab_FabricatedSObject {
     private Type sType;
     @testVisible private Map<String,sfab_FabricatedSObjectNode> nodes = new Map<String,sfab_FabricatedSObjectNode>();
 
-    sfab_ObjectDescriber sfab_ObjectDescriber = new sfab_ObjectDescriber();
+    sfab_ObjectDescriber sfab_ObjectDescriber = new sfab_ObjectDescriber(); // TODO: should be constructed with the objectName instead
 
     public class FieldDoesNotExistException extends Exception {}
     public class ParentRelationshipDoesNotExistException extends Exception {}
     public class ParentRelationshipObjectCannotBeAutoCreatedException extends Exception {}
+    public class NodeNotSetException extends Exception {}
 
     /**
     * Constructs a FabricatedSObject of the given type.
@@ -92,7 +93,7 @@ public virtual class sfab_FabricatedSObject {
         // defined version of an overloaded method even when a more specific type matches for a given value.
         // This means that 'setParentField' will always call this version of the overloaded method regardless
         // of the contents of the value parameter.  So we need to manually check the instance type in the code.
-        if ( fieldName.contains( '.' ) ) {
+        if ( containsAParentNavigation( fieldName ) ) {
             return setParentField( fieldName, value );
         }
 
@@ -246,15 +247,15 @@ public virtual class sfab_FabricatedSObject {
     // TODO: test
     public sfab_FabricatedSObject addChild( String relationshipName, sfab_FabricatedSObject fabricatedChild ) {
 
-        // TODO: can this do some navigation down fields too?
-        //
-        // so we can: contact.add( 'Account.Opportunities', theOpportunity )
-        //
-        if ( !nodeExists( relationshipName ) ) {
-            setNode( relationshipName, new sfab_ChildRelationshipNode( relationshipName ) );
+        if ( containsAParentNavigation( relationshipName ) ) {
+            addParentChild( relationshipName, fabricatedChild );
+        } else {
+            if ( !nodeExists( relationshipName ) ) {
+                setNode( relationshipName, new sfab_ChildRelationshipNode( relationshipName ) );
+            }
+            // TODO: needs some protection that the node is a sfab_ChildRelationshipNode
+            getChildRelationshipNode( relationshipName ).addChild( fabricatedChild );
         }
-        // TODO: needs some protection that the node is a sfab_ChildRelationshipNode
-        getChildRelationshipNode( relationshipName ).addChild( fabricatedChild );
         return this;
     }
 
@@ -287,7 +288,12 @@ public virtual class sfab_FabricatedSObject {
         return String.valueOf( sType );
     }
 
-    private sfab_FabricatedSObject setParentField( String fieldName, Object value ) {
+    private Boolean containsAParentNavigation( String fieldName ) {
+        return fieldName.contains( '.' );
+    }
+
+    // TODO: feels clumsy
+    private Map<String,String> defaultParentField( String fieldName ) {
         String relationshipName = fieldName.substringBefore( '.' );
         String childFieldName   = fieldName.substringAfter( '.' );
 
@@ -303,11 +309,24 @@ public virtual class sfab_FabricatedSObject {
             }
         }
 
-        getParentRelationshipNode( relationshipName ).setField( childFieldName, value );
+        return new Map<String,String>{
+            'relationshipName' => relationshipName,
+            'childFieldName'   => childFieldName
+        };
+    }
+
+    private sfab_FabricatedSObject setParentField( String fieldName, Object value ) {
+        Map<String,String> fields = defaultParentField( fieldName );
+        getParentRelationshipNode( fields.get( 'relationshipName'  ) ).set( fields.get( 'childFieldName' ), value );
         return this;
     }
 
-    // TODO: extract the class sfab_FabricatedSObjectNodes?
+    private sfab_FabricatedSObject addParentChild( String fieldName, sfab_FabricatedSObject fabricatedChild ) {
+        Map<String,String> fields = defaultParentField( fieldName );
+        getParentRelationshipNode( fields.get( 'relationshipName'  ) ).add( fields.get( 'childFieldName' ), fabricatedChild );
+        return this;
+    }
+
     private Boolean nodeExists( String nodeName ) {
         return nodes.containsKey( nodeName );
     }
@@ -318,6 +337,9 @@ public virtual class sfab_FabricatedSObject {
     }
 
     private sfab_FabricatedSObjectNode getNode( String nodeName ) {
+        if ( ! nodeExists( nodeName ) ) {
+            throw new NodeNotSetException( 'Attempt to get the value of node "' + nodeName + '" when it was not set' );
+        }
         return nodes.get( nodeName );
     }
 

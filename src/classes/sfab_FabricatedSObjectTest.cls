@@ -265,6 +265,18 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
+    private static void addChild_whenAParentsChildIsSpecified_expectObjectsAdded() {
+        sfab_FabricatedSObject fabricatedContact = new sfab_FabricatedSObject(Contact.class);
+        fabricatedContact.addChild('Account.Opportunities', new sfab_FabricatedSObject(Opportunity.class));
+        fabricatedContact.addChild('Account.Opportunities', new sfab_FabricatedSObject(Opportunity.class));
+        System.assertEquals(1, fabricatedContact.getNumberOfNodes());
+
+        sfab_FabricatedSObject fabricatedAccount = fabricatedContact.getParent( 'Account' );
+        System.assertEquals(1, fabricatedAccount.getNumberOfNodes());
+        System.assertEquals(2, fabricatedAccount.getNumberOfChildren( 'Opportunities' ) );
+    }
+
+    @isTest
     private static void add_expectObjectsAdded() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.add('Opportunities', new sfab_FabricatedSObject(Opportunity.class));

@@ -8,7 +8,7 @@
     <target name="deploy">
         <sf:deploy 
             username="${sf.username}" 
-            password="${sf.password}" 
+            password="${sf.password}"
             serverurl="${sf.server}"
             testLevel="RunLocalTests" 
             deployRoot="${basedir}/src"/>

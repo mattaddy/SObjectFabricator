@@ -29,7 +29,7 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
-    private static void toSObject_expectBuildInvokedOnNodes() {
+    private static void toSObject_expectSerializeInvokedOnNodes() {
         sfab_FabricatedSObjectNodeStub node1 = new sfab_FabricatedSObjectNodeStub( 'node1' );
         sfab_FabricatedSObjectNodeStub node2 = new sfab_FabricatedSObjectNodeStub( 'node2' );
         SObject sObj = new sfab_FabricatedSObject(Account.class, new List<sfab_FabricatedSObjectNode> { node1, node2 }).toSObject();

@@ -2,7 +2,6 @@ public class sfab_ChildRelationshipNode implements sfab_FabricatedSObjectNode {
     @testVisible private String fieldName;
     @testVisible private List<sfab_FabricatedSObject> children;
 
-    // TODO: test
     public sfab_ChildRelationshipNode( String fieldName ) {
         this.fieldName = fieldName;
         this.children = new List<sfab_FabricatedSObject>();
@@ -13,7 +12,6 @@ public class sfab_ChildRelationshipNode implements sfab_FabricatedSObjectNode {
         this.children = children;
     }
 
-    // TODO: test
     public sfab_ChildRelationshipNode addChild( sfab_FabricatedSObject child ) {
         this.children.add( child );
         return this;
@@ -23,12 +21,10 @@ public class sfab_ChildRelationshipNode implements sfab_FabricatedSObjectNode {
         return fieldName;
     }
 
-    // TODO: test
     public Integer getNumberOfChildren() {
         return children.size();
     }
 
-    // TODO: test
     public List<sfab_FabricatedSObject> getChildren() {
         return children;
     }

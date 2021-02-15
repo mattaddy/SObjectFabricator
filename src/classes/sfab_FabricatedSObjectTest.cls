@@ -231,28 +231,59 @@ private class sfab_FabricatedSObjectTest {
     private static void setParent_expectFieldAddedToNodes() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Opportunity.class);
         fabricatedSObject.setParent('Account', new sfab_FabricatedSObject(Account.class));
-        System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
+        System.assertNotEquals( null, fabricatedSObject.getParent('Account') );
+    }
+
+    @isTest
+    private static void setParent_whenParentOfParent_expectFieldAddedToNodes() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Opportunity.class);
+        fabricatedSObject.setParent('Account.CreatedBy', new sfab_FabricatedSObject(User.class));
+        System.assertNotEquals( null, fabricatedSObject.getParent('Account').getParent('CreatedBy') );
     }
 
     @isTest
     private static void set_whenParent_expectFieldAddedToNodes() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Opportunity.class);
-        fabricatedSObject.setParent('Account', new sfab_FabricatedSObject(Account.class));
-        System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
+        fabricatedSObject.set('Account', new sfab_FabricatedSObject(Account.class));
+        System.assertNotEquals( null, fabricatedSObject.getParent('Account') );
     }
 
     @isTest
     private static void setChildren_expectChildrenSet() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
-        fabricatedSObject.setChildren('Opportunites', new List<sfab_FabricatedSObject>());
-        System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
+        fabricatedSObject.setChildren('Opportunities', new List<sfab_FabricatedSObject>{
+                                                                new sfab_FabricatedSObject(Opportunity.class),
+                                                                new sfab_FabricatedSObject(Opportunity.class) } );
+        System.assertEquals( 2, fabricatedSObject.getNumberOfChildren('Opportunities') );
     }
 
     @isTest
-    private static void set_whenChild_expectChildSet() {
+    private static void setChildren_whenChildrenOfParent_expectChildrenSet() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Opportunity.class);
+        fabricatedSObject.setChildren('Account.Contacts', new List<sfab_FabricatedSObject>{
+                                                                    new sfab_FabricatedSObject(Contact.class),
+                                                                    new sfab_FabricatedSObject(Contact.class) } );
+
+        System.assertEquals( 2, fabricatedSObject.getParent('Account').getNumberOfChildren('Contacts') );
+    }
+
+    @isTest
+    private static void set_whenChildren_expectChildSet() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
-        fabricatedSObject.setChildren('Opportunites', new List<sfab_FabricatedSObject>());
-        System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
+        fabricatedSObject.set('Opportunities', new List<sfab_FabricatedSObject>{
+                                                        new sfab_FabricatedSObject(Opportunity.class),
+                                                        new sfab_FabricatedSObject(Opportunity.class) } );
+        System.assertEquals( 2, fabricatedSObject.getNumberOfChildren('Opportunities') );
+    }
+
+    @isTest
+    private static void set_whenChildrenOfParent_expectChildSet() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Opportunity.class);
+        fabricatedSObject.set('Account.Contacts', new List<sfab_FabricatedSObject>{
+                                                        new sfab_FabricatedSObject(Contact.class),
+                                                        new sfab_FabricatedSObject(Contact.class) } );
+
+        System.assertEquals( 2, fabricatedSObject.getParent('Account').getNumberOfChildren('Contacts') );
     }
 
     @isTest
@@ -260,8 +291,8 @@ private class sfab_FabricatedSObjectTest {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.addChild('Opportunities', new sfab_FabricatedSObject(Opportunity.class));
         fabricatedSObject.addChild('Opportunities', new sfab_FabricatedSObject(Opportunity.class));
-        System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
-        System.assertEquals(2, fabricatedSObject.getNumberOfChildren( 'Opportunities' ) );
+        System.assertEquals( 1, fabricatedSObject.getNumberOfNodes());
+        System.assertEquals( 2, fabricatedSObject.getNumberOfChildren( 'Opportunities' ) );
     }
 
     @isTest
@@ -269,11 +300,11 @@ private class sfab_FabricatedSObjectTest {
         sfab_FabricatedSObject fabricatedContact = new sfab_FabricatedSObject(Contact.class);
         fabricatedContact.addChild('Account.Opportunities', new sfab_FabricatedSObject(Opportunity.class));
         fabricatedContact.addChild('Account.Opportunities', new sfab_FabricatedSObject(Opportunity.class));
-        System.assertEquals(1, fabricatedContact.getNumberOfNodes());
+        System.assertEquals( 1, fabricatedContact.getNumberOfNodes());
 
         sfab_FabricatedSObject fabricatedAccount = fabricatedContact.getParent( 'Account' );
-        System.assertEquals(1, fabricatedAccount.getNumberOfNodes());
-        System.assertEquals(2, fabricatedAccount.getNumberOfChildren( 'Opportunities' ) );
+        System.assertEquals( 1, fabricatedAccount.getNumberOfNodes());
+        System.assertEquals( 2, fabricatedAccount.getNumberOfChildren( 'Opportunities' ) );
     }
 
     @isTest
@@ -281,8 +312,8 @@ private class sfab_FabricatedSObjectTest {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.add('Opportunities', new sfab_FabricatedSObject(Opportunity.class));
         fabricatedSObject.add('Opportunities', new sfab_FabricatedSObject(Opportunity.class));
-        System.assertEquals(1, fabricatedSObject.getNumberOfNodes());
-        System.assertEquals(2, fabricatedSObject.getNumberOfChildren( 'Opportunities' ) );
+        System.assertEquals( 1, fabricatedSObject.getNumberOfNodes());
+        System.assertEquals( 2, fabricatedSObject.getNumberOfChildren( 'Opportunities' ) );
     }
 
     @isTest
@@ -293,7 +324,7 @@ private class sfab_FabricatedSObjectTest {
         System.assertEquals(1, fabricatedContact.getNumberOfNodes());
 
         sfab_FabricatedSObject fabricatedAccount = fabricatedContact.getParent( 'Account' );
-        System.assertEquals(1, fabricatedAccount.getNumberOfNodes());
-        System.assertEquals(2, fabricatedAccount.getNumberOfChildren( 'Opportunities' ) );
+        System.assertEquals( 1, fabricatedAccount.getNumberOfNodes());
+        System.assertEquals( 2, fabricatedAccount.getNumberOfChildren( 'Opportunities' ) );
     }
 }

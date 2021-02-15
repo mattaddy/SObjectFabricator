@@ -2,7 +2,7 @@
 
 [![Deploy to Salesforce](https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png)](https://githubsfdeploy.herokuapp.com?owner=mattaddy&repo=SObjectFabricator)
 
-An SObject fabrication API to reduce database interactions and dependencies on triggers in Apex unit tests. Includes the ability to fabricate system and formula fields, rollup summaries, and child relationships. Strongly inspired by [Stephen Willcock](https://github.com/stephenwillcock)'s [Dreamforce presentation](https://www.youtube.com/watch?v=dWertK6Legc) on Tests and Testability in Apex.
+An SObject fabrication API to reduce database interactions and dependencies on triggers in Apex unit tests. It includes the ability to fabricate system and formula fields, rollup summaries, and child relationships. Strongly inspired by [Stephen Willcock](https://github.com/stephenwillcock)'s [Dreamforce presentation](https://www.youtube.com/watch?v=dWertK6Legc) on Tests and Testability in Apex.
 
 ## Motivation
 
@@ -20,20 +20,45 @@ SObjectFabricator provides the ability to set any field value, including system,
 
 ### Simple Example
 
+#### Setting fields
+
 Creating an SObject and setting properties on it can be as simple as:
 
 ```java
-Account account = (Account)new sfab_FabricatedSObject( Account.class )
+Account accountSobject = (Account)new sfab_FabricatedSObject( Account.class )
                             .set( 'Name'            , 'Account Name' )
                             .set( 'LastModifiedDate', Date.newInstance( 2017, 1, 1 ) )
                             .toSObject();
 ```
 
+#### Setting Parent Relationships
+
+Creating an SObject with a Lookup or Master / Detail relationship set can be as simple as:
+
+```java
+Contact contactSobject = (Contact)new sfab_FabricatedSObject( Contact.class )
+                            .set( 'LastName'    , 'PersonName' )
+                            .set( 'Account.Name', 'Account Name' )
+                            .toSObject();
+```
+
+#### Setting Child Relationships
+
+Creating an SObject with a child relationship set can be as simple as:
+
+```java
+Account accountSobject = (Account)new sfab_FabricatedSObject( Account.class )
+                            .set( 'Name'            , 'Account Name' )
+                            .add( 'Contacts', new sfab_FabricatedSObject( Contact.class )
+                                                    .set( 'LastName', 'PersonName' ) )
+                            .add( 'Contacts', new sfab_FabricatedSObject( Contact.class )
+                                                    .set( 'LastName', 'OtherPersonName' ) )
+                            .toSObject();
+```
+
 ### Detailed Example
 
-Although, not all fabrications are as simple as that.
-
-With SObjectFabricator, you can:
+There are lots of other options.  With SObjectFabricator, you can:
 
 ```java
 sfab_FabricatedSObject fabricatedAccount = new sfab_FabricatedSObject( Account.class );
@@ -54,11 +79,16 @@ fabricatedAccount.set( 'Owner.Alias', 'alias' );
 // Set multi-leveled lookup / master detail relationships implicitly
 fabricatedAccount.set( 'Owner.Profile.Name', 'System Administrator' );
 
-// Set child relationships
+// Set child relationships in one go
 fabricatedAccount.set( 'Opportunities', new List<sfab_FabricatedSObject> {
         new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-1' ),
         new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-2' )
 });
+
+// Set child relationships one-by-one
+fabricatedAccount.add( 'Opportunities', new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-3' ) );
+fabricatedAccount.add( 'Opportunities', new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-4' ) );
+
 
 // Generate an SObject from that configuration
 Account sObjectAccount = (Account)fabricatedAccount.toSObject();
@@ -72,13 +102,13 @@ System.debug( sObjectAccount.Owner );
 // Profile:{Name=System Administrator}
 System.debug( sObjectAccount.Owner.Profile );
 
-// (Opportunity:{Id=OppId-1}, Opportunity:{Id=OppId-2})
+// (Opportunity:{Id=OppId-1}, Opportunity:{Id=OppId-2}, Opportunity:{Id=OppId-3}, Opportunity:{Id=OppId-4})
 System.debug( sObjectAccount.Opportunities );
 ```
 
 ### Fluent API
 
-The set methods form a fluent API, meaning you can condense the above configuration into:
+The set methods form a fluent API, meaning you can condense the above configuration into something like:
 
 ```java
 Account sObjectAccount = (Account)new sfab_FabricatedSObject( Account.class )
@@ -87,9 +117,12 @@ Account sObjectAccount = (Account)new sfab_FabricatedSObject( Account.class )
     .set( 'Name', 'The Account Name' )
     .set( 'Owner', new sfab_FabricatedSObject( User.class ).set( 'Username', 'TheOwner' ) )
     .set( 'Opportunities', new List<sfab_FabricatedSObject> {
-        new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-1'),
-        new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-2')
-    }).toSObject();
+        new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-1' ),
+        new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-2' )
+    })
+    .add( 'Opportunities', new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-3' ) ) // though, it would be odd to combine set
+    .add( 'Opportunities', new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-4' ) ) // and add on a single child relationship
+    .toSObject();
 ```
 
 ### Set non-relationship field values in bulk
@@ -142,11 +175,14 @@ Account fabricatedViaSet = (Account)new sfab_FabricatedSObject(Account.class)
 If you prefer the set methods to be a little more explicit in their intention, you can use more specific versions of the `set` method.
 
 ```java
-Account acct = (Account)new sfab_FabricatedSObject(Account.class)
-    .setField(Account.Id, 'Id-1')
-    .setField(Account.LastModifiedDate, Date.newInstance(2017, 1, 1))
-    .setChildren('Opportunities', new List<sfab_FabricatedSObject> {
-        new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-1'),
-        new sfab_FabricatedSObject(Opportunity.class).setField(Opportunity.Id, 'OppId-2')
-    }).toSObject();
+Account sObjectAccount = (Account)new sfab_FabricatedSObject( Account.class )
+    .setField( Account.Id, 'Id-1' )
+    .setField( Account.LastModifiedDate, Date.newInstance( 2017, 1, 1 ) )
+    .setParent( 'Owner', new sfab_FabricatedSObject( User.class ).setField( 'Username', 'TheOwner' ) )
+    .setChildren( 'Opportunities', new List<sfab_FabricatedSObject> {
+        new sfab_FabricatedSObject( Opportunity.class ).setField( Opportunity.Id, 'OppId-1' ),
+        new sfab_FabricatedSObject( Opportunity.class ).setField( Opportunity.Id, 'OppId-2' ) } )
+    .addChild( 'Opportunities', new sfab_FabricatedSObject( Opportunity.class ).setField( 'Id', 'OppId-3') ) // though, it would be odd to combine setChildren
+    .addChild( 'Opportunities', new sfab_FabricatedSObject( Opportunity.class ).setField( 'Id', 'OppId-4') ) // and addChild on a single child relationship
+    .toSObject();
 ```

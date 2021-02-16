@@ -285,77 +285,142 @@ private class sfab_FabricatedSObjectTest {
         System.assertEquals( 2, fabricatedAccount.getNumberOfChildren( 'Opportunities' ) );
     }
 
-    @isTest
-    private static void setField_whenFieldDoesNotExist_expectException() {
-
-        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
-
-        String  exceptionMessage;
-        try {
-            fabricatedSObject.setField('Invalid', 'Id-1');
-        } catch ( sfab_FabricatedSObject.FieldDoesNotExistException e ) {
-            exceptionMessage = e.getMessage();
-        }
-        System.assert( exceptionMessage.contains( 'The field Account.Invalid does not exist' ), 'setField, when field does not exist, will throw an exception with a useful message (got ' + exceptionMessage + ')' );
-    }
-
-    // Simple setField - field
-    // setField, when field is not a field on this object
-    // setField, when field is a parent relationship
-    // setField, when field is a child relationship
-
-
-    // Simple setField - string
+    // TODO: Simple setField - field
     // setField, when field is not a field
     // setField, when field is a parent relationship
     // setField, when field is a child relationship
 
-    // Navigation setField - string
-    // setField, when field is not on the end object
-    // setField, when field on the end object is a parent relationship
-    // setField, when field on the end object is a child relationship
+    @isTest
+    private static void setField_whenFieldDoesNotExist_expectException() {
 
-    // Simple setParent - field
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setField( 'Invalid', 'Id-1' );
+        } catch ( sfab_FabricatedSObject.FieldDoesNotExistException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Invalid does not exist' ),
+                        'setField, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setField_whenFieldIsParentRelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setField( 'Account', 'Is a parent relationship' );
+        } catch ( sfab_FabricatedSObject.FieldIsNotSimpleFieldException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Contact.Account cannot to set to a primitive, it is a parent relationship field' ),
+                        'setField, when field is a parent relationship, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setField_whenFieldIsChildRelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setField( 'Contacts', 'Is a child relationship' );
+        } catch ( sfab_FabricatedSObject.FieldIsNotSimpleFieldException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Contacts cannot to set to a primitive, it is a child relationship field' ),
+                        'setField, when field is a child relationship, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setField_whenNavigatingAndFieldDoesNotExist_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setField( 'Account.Invalid', 'Id-1' );
+        } catch ( sfab_FabricatedSObject.FieldDoesNotExistException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Invalid does not exist' ),
+                        'setField, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setField_whenNavigatingAndFieldIsParentRelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setField( 'Account.Owner', 'Is a parent relationship' );
+        } catch ( sfab_FabricatedSObject.FieldIsNotSimpleFieldException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Owner cannot to set to a primitive, it is a parent relationship field' ),
+                        'setField, when field is a parent relationship, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setField_whenNavigatingAndFieldIsChildRelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setField( 'Account.Contacts', 'Is a child relationship' );
+        } catch ( sfab_FabricatedSObject.FieldIsNotSimpleFieldException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Contacts cannot to set to a primitive, it is a child relationship field' ),
+                        'setField, when field is a child relationship, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    // TODO: Simple setParent - field
     // setParent, when field not a field on this object
     // setParent, when field is a simple field
     // setParent, when field is a child relationship
 
-    // Simple setParent - string
+    // TODO: Simple setParent - string - check those already defined below...
     // setParent, when field not a field on this object
     // setParent, when field is a simple field
     // setParent, when field is a child relationship
 
-    // Navigation setParent - string
+    // TODO: Navigation setParent - string
     // setField, when field is not on the end object
     // setField, when field on the end object is a simple field
     // setField, when field on the end object is a child relationship
 
-    // Simple setChildren - field
+    // TODO: Simple setChildren - field
     // setChildren, when field not a field on this object
     // setChildren, when field is a simple field
     // setChildren, when field is a parent relationship
 
-    // Simple setChildren - string
+    // TODO: Simple setChildren - string
     // setChildren, when field not a field on this object
     // setChildren, when field is a simple field
     // setChildren, when field is a parent relationship
 
-    // Navigation setChildren - string
+    // TODO: Navigation setChildren - string
     // setField, when field is not on the end object
     // setField, when field on the end object is a simple field
     // setField, when field on the end object is a parent relationship
 
-    // Simple addChild - field
+    // TODO: Simple addChild - field
     // addChild, when field not a field on this object
     // addChild, when field is a simple field
     // addChild, when field is a parent relationship
 
-    // Simple addChild - string
+    // TODO: Simple addChild - string
     // addChild, when field not a field on this object
     // addChild, when field is a simple field
     // addChild, when field is a parent relationship
 
-    // Navigation addChild - string
+    // TODO: Navigation addChild - string
     // addChild, when field is not on the end object
     // addChild, when field on the end object is a simple field
     // addChild, when field on the end object is a parent relationship
@@ -363,28 +428,28 @@ private class sfab_FabricatedSObjectTest {
     @isTest
     private static void set_whenStringFieldForParentNotARelationship_expectException() {
 
-        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
 
-        String  exceptionMessage;
+        String exceptionMessage = '';
         try {
-            fabricatedSObject.set('Name.NotARelationship', 'name is not a relationship');
+            fabricatedSObject.set( 'Name.NotARelationship', 'name is not a relationship' );
         } catch ( sfab_FabricatedSObject.ParentRelationshipDoesNotExistException e ) {
             exceptionMessage = e.getMessage();
         }
-        System.assert( exceptionMessage.contains( 'The parent relationship Account.Name does not exist' ), 'setField, when field does not exist, will throw an exception with a useful message (got ' + exceptionMessage + ')' );
+        System.assert( exceptionMessage.contains( 'The parent relationship Account.Name does not exist' ), 'setField, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
     }
 
     @isTest
     private static void set_whenStringFieldForParentPolymorphic_expectException() {
 
-        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Task.class);
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Task.class );
 
-        String  exceptionMessage;
+        String exceptionMessage = '';
         try {
-            fabricatedSObject.set('Owner.Username', 'cannot create polymorphic ones automatically');
+            fabricatedSObject.set( 'Owner.Username', 'cannot create polymorphic ones automatically' );
         } catch ( sfab_FabricatedSObject.ParentRelationshipObjectCannotBeAutoCreatedException e ) {
             exceptionMessage = e.getMessage();
         }
-        System.assert( exceptionMessage.contains( 'Could not auto-assign an object for the field Owner' ), 'setField, when field does not exist, will throw an exception with a useful message (got ' + exceptionMessage + ')' );
+        System.assert( exceptionMessage.contains( 'Could not auto-assign an object for the field Owner' ), 'setField, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
     }
 }

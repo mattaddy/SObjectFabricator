@@ -13,6 +13,8 @@ public virtual class sfab_FabricatedSObject {
     public class FieldIsNotParentRelationshipException extends Exception {}
     public class FieldIsNotChildRelationshipException extends Exception {}
 
+    public class FieldIsADifferentTypeException extends Exception {}
+
     public class ParentRelationshipObjectCannotBeAutoCreatedException extends Exception {}
 
     public class NodeNotSetException extends Exception {}

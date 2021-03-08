@@ -3,7 +3,7 @@ public virtual class sfab_FabricatedSObject {
     private Type sType;
     @testVisible private Map<String,sfab_FabricatedSObjectNode> nodes = new Map<String,sfab_FabricatedSObjectNode>();
 
-    sfab_ObjectDescriber sfab_ObjectDescriber = new sfab_ObjectDescriber();
+    sfab_ObjectDescriber objectDescriber = new sfab_ObjectDescriber();
 
     public class FieldDoesNotExistException extends Exception {}
     public class ParentRelationshipDoesNotExistException extends Exception {}
@@ -165,8 +165,8 @@ public virtual class sfab_FabricatedSObject {
     * @return sfab_FabricatedSObject - This, allowing for a fluent interface
     */
     public sfab_FabricatedSObject set( Map<Schema.SObjectField, Object> fields ) {
-        for (Schema.SObjectField field : fields.keySet()) {
-            setField(field, fields.get(field));
+        for ( Schema.SObjectField field : fields.keySet() ) {
+            setField( field, fields.get( field ) );
         }
         return this;
     }
@@ -203,8 +203,8 @@ public virtual class sfab_FabricatedSObject {
     * @param Object - The value that the field should be set to
     * @return sfab_FabricatedSObject - This, allowing for a fluent interface
     */
-    public sfab_FabricatedSObject setField(Schema.SObjectField field, Object value) {
-        return setNode( field.getDescribe().getName(), new sfab_FieldValuePairNode(field, value));
+    public sfab_FabricatedSObject setField( Schema.SObjectField field, Object value ) {
+        return setDirectField( field.getDescribe().getName(), value );
     }
 
     /**
@@ -319,14 +319,13 @@ public virtual class sfab_FabricatedSObject {
     private sfab_FieldNameSplitter defaultParentField( String fieldName ) {
 
         sfab_FieldNameSplitter fieldNameSplitter = new sfab_FieldNameSplitter( fieldName );
+        String parentFieldName = fieldNameSplitter.getParentFieldName();
 
-        if ( !sfab_ObjectDescriber.objectHasParentRelationshipNamed( getSobjectName(), fieldNameSplitter.getParentFieldName() ) ) {
-            throw new ParentRelationshipDoesNotExistException( 'The parent relationship ' + getSobjectName() + '.' + fieldNameSplitter.getParentFieldName() + ' does not exist' );
-        }
+        checkFieldIsParentRelationship( parentFieldName );
 
-        if ( ! nodeExists( fieldNameSplitter.getParentFieldName() ) ) {
+        if ( ! nodeExists( parentFieldName ) ) {
             try {
-                set( fieldNameSplitter.getParentFieldName(), sfab_ObjectDescriber.buildFabricatedObjectForRelationship( getSobjectName(), fieldNameSplitter.getParentFieldName() ) );
+                set( parentFieldName, objectDescriber.buildFabricatedObjectForRelationship( getSobjectName(), parentFieldName ) );
             } catch ( Exception e ) {
                 throw new ParentRelationshipObjectCannotBeAutoCreatedException( 'Could not auto-assign an object for the field ' + fieldName + ': ' + e.getMessage() );
             }
@@ -346,6 +345,7 @@ public virtual class sfab_FabricatedSObject {
     */
     private sfab_FabricatedSObject setDirectField( String fieldName, Object value ) {
 
+        // TODO: move into objectDescriber
         Schema.SobjectField theField = Schema.getGlobalDescribe()
                                                 .get( getSobjectName() )
                                                 ?.getDescribe()
@@ -353,10 +353,19 @@ public virtual class sfab_FabricatedSObject {
                                                 ?.getMap()
                                                 ?.get( fieldName );
         if ( theField == null ) {
+
+            if ( objectDescriber.objectHasParentRelationshipNamed( getSobjectName(), fieldName ) ) {
+                throw new FieldIsNotSimpleFieldException( 'The field '+ getSobjectName() +'.' + fieldName + ' cannot to set to a primitive, it is a parent relationship field' );
+            }
+
+            if ( objectDescriber.objectHasChildRelationshipNamed( getSObjectName(), fieldName ) ) {
+                throw new FieldIsNotSimpleFieldException( 'The field '+ getSobjectName() +'.' + fieldName + ' cannot to set to a primitive, it is a child relationship field' );
+            }
+
             throw new FieldDoesNotExistException( 'The field ' + getSobjectName() + '.' + fieldName + ' does not exist' );
         }
 
-        return setField( theField, value );
+        return setNode( fieldName, new sfab_FieldValuePairNode( theField, value ) );
     }
 
     /**
@@ -368,6 +377,7 @@ public virtual class sfab_FabricatedSObject {
     * @return sfab_FabricatedSObject - This, allowing for a fluent interface
     */
     private sfab_FabricatedSObject setDirectParent( String relationshipName, sfab_FabricatedSObject fabricatedParent ) {
+        checkFieldIsParentRelationship( relationshipName );
         return setNode( relationshipName, new sfab_ParentRelationshipNode(relationshipName, fabricatedParent));
     }
 
@@ -499,6 +509,21 @@ public virtual class sfab_FabricatedSObject {
     private Integer getNumberOfNodes() {
         return nodes.size();
     }
+
+    // TODO: document
+    // TODO: move it onto objectdescriber?
+    private void checkFieldIsParentRelationship( String parentFieldName ) {
+
+        if ( !objectDescriber.objectHasParentRelationshipNamed( getSobjectName(), parentFieldName ) ) {
+            if (  objectDescriber.objectHasSimpleFieldNamed( getSobjectName(), parentFieldName )
+                || objectDescriber.objectHasChildRelationshipNamed( getSobjectName(), parentFieldName ) ) {
+                throw new FieldIsNotParentRelationshipException( 'The field ' + getSobjectName() + '.' + parentFieldName + ' is not a parent relationship' );
+            }
+
+            throw new ParentRelationshipDoesNotExistException( 'The parent relationship ' + getSobjectName() + '.' + parentFieldName + ' does not exist' );
+        }
+    }
+
 
     /**
     * Internal class that interprets a field name and determines

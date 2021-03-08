@@ -398,10 +398,10 @@ private class sfab_FabricatedSObjectTest {
         String exceptionMessage = '';
         try {
             fabricatedSObject.setParent( 'Account', new sfab_FabricatedSObject( Account.class ) );
-        } catch ( sfab_FabricatedSObject.FieldDoesNotExistException e ) {
+        } catch ( sfab_FabricatedSObject.ParentRelationshipDoesNotExistException e ) {
             exceptionMessage = e.getMessage();
         }
-        System.assert( exceptionMessage.contains( 'The field Account.Account does not exist' ),
+        System.assert( exceptionMessage.contains( 'The parent relationship Account.Account does not exist' ),
                         'setParent, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
     }
 
@@ -515,10 +515,10 @@ private class sfab_FabricatedSObjectTest {
         String exceptionMessage = '';
         try {
             fabricatedSObject.set( 'Name.NotARelationship', 'name is not a relationship' );
-        } catch ( sfab_FabricatedSObject.ParentRelationshipDoesNotExistException e ) {
+        } catch ( sfab_FabricatedSObject.FieldIsNotParentRelationshipException e ) {
             exceptionMessage = e.getMessage();
         }
-        System.assert( exceptionMessage.contains( 'The parent relationship Account.Name does not exist' ), 'setField, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+        System.assert( exceptionMessage.contains( 'Account.Name is not a parent relationship' ), 'setField, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
     }
 
     @isTest

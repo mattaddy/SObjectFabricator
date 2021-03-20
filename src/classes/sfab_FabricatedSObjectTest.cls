@@ -63,6 +63,14 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
+    private static void setField_whenStringIsAParentField_expectFieldAddedToNodes() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+        fabricatedSObject.setField( 'Account.Id', 'Id-1' );
+        System.assertEquals( 1, fabricatedSObject.getNumberOfNodes());
+        System.assertEquals( 'Id-1', fabricatedSObject.getParent( 'Account' ).getFieldValue( 'Id' ) );
+    }
+
+    @isTest
     private static void set_whenField_expectFieldAddedToNodes() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.set(Account.Id, 'Id-1');
@@ -696,7 +704,7 @@ private class sfab_FabricatedSObjectTest {
         } catch ( sfab_FabricatedSObject.FieldIsNotParentRelationshipException e ) {
             exceptionMessage = e.getMessage();
         }
-        System.assert( exceptionMessage.contains( 'Account.Name is not a parent relationship' ), 'setField, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+        System.assert( exceptionMessage.contains( 'Account.Name is not a parent relationship' ), 'set, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
     }
 
     @isTest
@@ -710,6 +718,6 @@ private class sfab_FabricatedSObjectTest {
         } catch ( sfab_FabricatedSObject.ParentRelationshipObjectCannotBeAutoCreatedException e ) {
             exceptionMessage = e.getMessage();
         }
-        System.assert( exceptionMessage.contains( 'Could not auto-assign an object for the field Owner' ), 'setField, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+        System.assert( exceptionMessage.contains( 'Could not auto-assign an object for the field Owner' ), 'set, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
     }
 }

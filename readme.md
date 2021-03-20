@@ -56,7 +56,7 @@ Account accountSobject = (Account)new sfab_FabricatedSObject( Account.class )
                             .toSObject();
 ```
 
-### Detailed Example
+### Detailed Examples
 
 There are lots of other options.  With SObjectFabricator, you can:
 
@@ -89,7 +89,6 @@ fabricatedAccount.set( 'Opportunities', new List<sfab_FabricatedSObject> {
 fabricatedAccount.add( 'Opportunities', new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-3' ) );
 fabricatedAccount.add( 'Opportunities', new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-4' ) );
 
-
 // Generate an SObject from that configuration
 Account sObjectAccount = (Account)fabricatedAccount.toSObject();
 
@@ -106,9 +105,28 @@ System.debug( sObjectAccount.Owner.Profile );
 System.debug( sObjectAccount.Opportunities );
 ```
 
+Each of the mechanisms also allow you to navigate through parent structures:
+
+```java
+sfab_FabricatedSObject fabricatedContact = new sfab_FabricatedSObject( Contact.class );
+
+fabricatedContact.set( 'Account.Name', 'The Account Name' );
+
+fabricatedContact.set( 'Account.Owner', new sfab_FabricatedSObject( User.class ) );
+
+fabricatedContact.set( 'Account.Opportunities', new List<sfab_FabricatedSObject> {
+        new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-1' ),
+        new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-2' )
+});
+
+fabricatedContact.add( 'Account.Opportunities', new sfab_FabricatedSObject( Opportunity.class ).set( 'Id', 'OppId-1' ) );
+
+Contact sObjectContact = (Contact)fabricatedContact.toSObject();
+```
+
 ### Fluent API
 
-The set methods form a fluent API, meaning you can condense the above configuration into something like:
+The set methods form a fluent API, meaning you can condense the configuration along the lines of
 
 ```java
 Account sObjectAccount = (Account)new sfab_FabricatedSObject( Account.class )
@@ -125,7 +143,7 @@ Account sObjectAccount = (Account)new sfab_FabricatedSObject( Account.class )
     .toSObject();
 ```
 
-### Set non-relationship field values in bulk
+### Set non-relationship field values in bulk via field references
 
 Field values can be set in bulk, either at construction time, or later (using `set`), by creating a `Map<SObjectField, Object>` of the fields that you wish to set and using that.
 
@@ -145,28 +163,39 @@ Account fabricatedViaSet = (Account)new sfab_FabricatedSObject(Account.class)
 
 ```
 
-### Set all field values in bulk
+### Set all field values in bulk via field name references
 
 Field, Parent and Child Relationship values can be set in bulk, either at construction time, or later, by passing a `Map<String,Object>`.
 
 ```java
-Map<String, Object> accountValues = new Map<String, Object> {
-        'Id'                => 'Id-1',
-        'LastModifiedDate'  => Date.newInstance(2017, 1, 1),
-        'Contacts'          =>  new List<sfab_FabricatedSObject>{
-                                    new sfab_FabricatedSObject( Contact.class )
-                                        .set( 'Name', 'ContactName' )
-                                },
-        'Owner'              =>  new sfab_FabricatedSObject( User.class )
-                                    .set( 'Username', 'The user' )
+Map<String,Object> contactValues = new Map<String,Object> {
+        'Id'                     => 'Id-1',
+
+        'LastModifiedDate'       => Date.newInstance(2017, 1, 1),
+
+        'Account.Name'           => 'The Account Name',
+
+        'Owner'                  => new sfab_FabricatedSObject( User.class )
+                                        .set( 'Username', 'The Contact Owner' ),
+
+        'Account.Owner'          => new sfab_FabricatedSObject( User.class )
+                                        .set( 'Username', 'The Account Owner' ),
+
+        'Opportunities'          => new List<sfab_FabricatedSObject>{
+                                        new sfab_FabricatedSObject( Opportunity.class )
+                                            .set( 'Name', 'Contact Opportunity Name' )
+                                    },
+        'Account.Opportunities'  => new List<sfab_FabricatedSObject>{
+                                        new sfab_FabricatedSObject( Opportunity.class )
+                                            .set( 'Name', 'Account Opportunity Name' )
+                                    }
 };
 
-Account fabricatedViaConstructor = (Account)new sfab_FabricatedSObject(Account.class, accountValues)
+Contact fabricatedViaConstructor = (Contact)new sfab_FabricatedSObject( Contact.class, contactValues )
                                                     .toSObject();
 
-
-Account fabricatedViaSet = (Account)new sfab_FabricatedSObject(Account.class)
-                                            .set(accountValues)
+Contact fabricatedViaSet = (Contact)new sfab_FabricatedSObject(Contact.class)
+                                            .set( contactValues )
                                             .toSObject();
 ```
 

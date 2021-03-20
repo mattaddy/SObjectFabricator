@@ -63,18 +63,11 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
-    private static void setField_whenStringIsInvalidField_expectException() {
-        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
-        Boolean exceptionThrown = false;
-        String  exceptionMessage;
-        try {
-            fabricatedSObject.setField('Invalid', 'Id-1');
-        }
-        catch ( sfab_FabricatedSObject.FieldDoesNotExistException e ) {
-            exceptionThrown = true;
-            exceptionMessage = e.getMessage();
-        }
-        System.assert( exceptionThrown );
+    private static void setField_whenStringIsAParentField_expectFieldAddedToNodes() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+        fabricatedSObject.setField( 'Account.Id', 'Id-1' );
+        System.assertEquals( 1, fabricatedSObject.getNumberOfNodes());
+        System.assertEquals( 'Id-1', fabricatedSObject.getParent( 'Account' ).getFieldValue( 'Id' ) );
     }
 
     @isTest
@@ -109,35 +102,6 @@ private class sfab_FabricatedSObjectTest {
         System.assertEquals( 'Contact-Id-1', fabricatedSObject.getFieldValue( 'Id' ) );
     }
 
-    @isTest
-    private static void set_whenStringFieldForParentNotARelationship_expectException() {
-        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
-        Boolean exceptionThrown = false;
-        String  exceptionMessage;
-        try {
-            fabricatedSObject.set('Name.NotARelationship', 'name is not a relationship');
-        }
-        catch ( sfab_FabricatedSObject.ParentRelationshipDoesNotExistException e ) {
-            exceptionThrown = true;
-            exceptionMessage = e.getMessage();
-        }
-        System.assert( exceptionThrown );
-    }
-
-    @isTest
-    private static void set_whenStringFieldForParentPolymorphic_expectException() {
-        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Task.class);
-        Boolean exceptionThrown = false;
-        String  exceptionMessage;
-        try {
-            fabricatedSObject.set('Owner.Username', 'cannot create polymorphic ones automatically');
-        }
-        catch ( sfab_FabricatedSObject.ParentRelationshipObjectCannotBeAutoCreatedException e ) {
-            exceptionThrown = true;
-            exceptionMessage = e.getMessage();
-        }
-        System.assert( exceptionThrown );
-    }
 
     @isTest
     private static void set_whenMapSobjectField_expectFieldsAddedToNodes() {
@@ -326,5 +290,434 @@ private class sfab_FabricatedSObjectTest {
         sfab_FabricatedSObject fabricatedAccount = fabricatedContact.getParent( 'Account' );
         System.assertEquals( 1, fabricatedAccount.getNumberOfNodes());
         System.assertEquals( 2, fabricatedAccount.getNumberOfChildren( 'Opportunities' ) );
+    }
+
+    @isTest
+    private static void setField_whenFieldDoesNotExist_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setField( Account.AccountNumber, 'Id-1' );
+        } catch ( sfab_FabricatedSObject.FieldDoesNotExistException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Contact.AccountNumber does not exist' ),
+                        'setField, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setField_whenStringFieldDoesNotExist_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setField( 'Invalid', 'Id-1' );
+        } catch ( sfab_FabricatedSObject.FieldDoesNotExistException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Invalid does not exist' ),
+                        'setField, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setField_whenStringFieldIsParentRelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setField( 'Account', 'Is a parent relationship' );
+        } catch ( sfab_FabricatedSObject.FieldIsNotSimpleFieldException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Contact.Account cannot to set to a primitive, it is a parent relationship field' ),
+                        'setField, when field is a parent relationship, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setField_whenStringFieldIsChildRelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setField( 'Contacts', 'Is a child relationship' );
+        } catch ( sfab_FabricatedSObject.FieldIsNotSimpleFieldException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Contacts cannot to set to a primitive, it is a child relationship field' ),
+                        'setField, when field is a child relationship, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setField_whenStringNavigatingAndFieldDoesNotExist_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setField( 'Account.Invalid', 'Id-1' );
+        } catch ( sfab_FabricatedSObject.FieldDoesNotExistException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Invalid does not exist' ),
+                        'setField, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setField_whenStringNavigatingAndFieldIsParentRelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setField( 'Account.Owner', 'Is a parent relationship' );
+        } catch ( sfab_FabricatedSObject.FieldIsNotSimpleFieldException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Owner cannot to set to a primitive, it is a parent relationship field' ),
+                        'setField, when field is a parent relationship, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setField_whenStringNavigatingAndFieldIsChildRelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setField( 'Account.Contacts', 'Is a child relationship' );
+        } catch ( sfab_FabricatedSObject.FieldIsNotSimpleFieldException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Contacts cannot to set to a primitive, it is a child relationship field' ),
+                        'setField, when field is a child relationship, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setParent_whenFieldDoesNotExist_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setParent( 'Account', new sfab_FabricatedSObject( Account.class ) );
+        } catch ( sfab_FabricatedSObject.ParentRelationshipDoesNotExistException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The parent relationship Account.Account does not exist' ),
+                        'setParent, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setParent_whenFieldIsASimpleField_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setParent( 'Name', new sfab_FabricatedSObject( Account.class ) );
+        } catch ( sfab_FabricatedSObject.FieldIsNotParentRelationshipException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Name is not a parent relationship' ),
+                        'setParent, when field is a simple field, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setParent_whenFieldIsAChildRelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setParent( 'Contacts', new sfab_FabricatedSObject( Account.class ) );
+        } catch ( sfab_FabricatedSObject.FieldIsNotParentRelationshipException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Contacts is not a parent relationship' ),
+                        'setParent, when field is a child relationship, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setParent_whenFieldIsPolymorphicAndACorrectSobject_expectNoException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Task.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setParent( 'Owner', new sfab_FabricatedSObject( Contact.class ) );
+        } catch ( sfab_FabricatedSObject.FieldIsADifferentTypeException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assertEquals( '', exceptionMessage, 'setParent, when field is polymorphic and the passed SObject included, will not throw an exception (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setParent_whenFieldOnParentDoesNotExist_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setParent( 'Account.NotValid', new sfab_FabricatedSObject( Account.class ) );
+        } catch ( sfab_FabricatedSObject.ParentRelationshipDoesNotExistException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The parent relationship Account.NotValid does not exist' ),
+                        'setParent, when field on the parent does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setParent_whenFieldOnParentIsASimpleField_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setParent( 'Account.Name', new sfab_FabricatedSObject( Account.class ) );
+        } catch ( sfab_FabricatedSObject.FieldIsNotParentRelationshipException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Name is not a parent relationship' ),
+                        'setParent, when field on the parent is a simple field, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setParent_whenFieldOnParentIsAChildRelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setParent( 'Account.Opportunities', new sfab_FabricatedSObject( Account.class ) );
+        } catch ( sfab_FabricatedSObject.FieldIsNotParentRelationshipException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Opportunities is not a parent relationship' ),
+                        'setParent, when field on the parent is a child relationship, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setChildren_whenFieldDoesNotExist_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setChildren( 'Accounts', new List<sfab_FabricatedSObject>{
+                                                            new sfab_FabricatedSObject( Account.class )
+                                                        });
+        } catch ( sfab_FabricatedSObject.ChildRelationshipDoesNotExistException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The child relationship Account.Accounts does not exist' ),
+                        'setChildren, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setChildren_whenFieldIsASimpleField_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setChildren( 'Name', new List<sfab_FabricatedSObject>{
+                                                        new sfab_FabricatedSObject( Account.class )
+                                                    });
+        } catch ( sfab_FabricatedSObject.FieldIsNotChildRelationshipException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Name is not a child relationship' ),
+                        'setChildren, when field is a simple field, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setChildren_whenFieldIsAParentRelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setChildren( 'Account', new List<sfab_FabricatedSObject>{
+                                                            new sfab_FabricatedSObject( Account.class )
+                                                        });
+        } catch ( sfab_FabricatedSObject.FieldIsNotChildRelationshipException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Contact.Account is not a child relationship' ),
+                        'setChildren, when field is a child relationship, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setChildren_whenFieldOnParentDoesNotExist_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setChildren( 'Account.Accounts', new List<sfab_FabricatedSObject>{
+                                                                    new sfab_FabricatedSObject( Account.class )
+                                                                });
+        } catch ( sfab_FabricatedSObject.ChildRelationshipDoesNotExistException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The child relationship Account.Accounts does not exist' ),
+                        'setChildren, when field on parent does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setChildren_whenFieldOnParentIsASimpleField_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setChildren( 'Account.Name', new List<sfab_FabricatedSObject>{
+                                                                new sfab_FabricatedSObject( Account.class )
+                                                            });
+        } catch ( sfab_FabricatedSObject.FieldIsNotChildRelationshipException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Name is not a child relationship' ),
+                        'setChildren, when field is a simple field, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setChildren_whenFieldOnParentIsAParentRelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setChildren( 'Account.Owner', new List<sfab_FabricatedSObject>{
+                                                                new sfab_FabricatedSObject( Account.class )
+                                                            });
+        } catch ( sfab_FabricatedSObject.FieldIsNotChildRelationshipException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Owner is not a child relationship' ),
+                        'setChildren, when field is a child relationship, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void addChild_whenFieldDoesNotExist_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.addChild( 'Accounts', new sfab_FabricatedSObject( Account.class ) );
+        } catch ( sfab_FabricatedSObject.ChildRelationshipDoesNotExistException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The child relationship Account.Accounts does not exist' ),
+                        'addChild, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void addChild_whenFieldIsASimpleField_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.addChild( 'Name', new sfab_FabricatedSObject( Account.class ) );
+        } catch ( sfab_FabricatedSObject.FieldIsNotChildRelationshipException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Name is not a child relationship' ),
+                        'addChild, when field is a simple field, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void addChild_whenFieldIsAParentRelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.addChild( 'Account', new sfab_FabricatedSObject( Account.class ) );
+        } catch ( sfab_FabricatedSObject.FieldIsNotChildRelationshipException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Contact.Account is not a child relationship' ),
+                        'addChild, when field is a child relationship, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void addChild_whenFieldOnParentDoesNotExist_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.addChild( 'Account.Accounts', new sfab_FabricatedSObject( Account.class ) );
+        } catch ( sfab_FabricatedSObject.ChildRelationshipDoesNotExistException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The child relationship Account.Accounts does not exist' ),
+                        'addChild, when field on parent does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void addChild_whenFieldOnParentIsASimpleField_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.addChild( 'Account.Name', new sfab_FabricatedSObject( Account.class ) );
+        } catch ( sfab_FabricatedSObject.FieldIsNotChildRelationshipException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Name is not a child relationship' ),
+                        'addChild, when field is a simple field, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void addChild_whenFieldOnParentIsAParentRelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.addChild( 'Account.Owner', new sfab_FabricatedSObject( Account.class ) );
+        } catch ( sfab_FabricatedSObject.FieldIsNotChildRelationshipException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Account.Owner is not a child relationship' ),
+                        'addChild, when field is a child relationship, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void set_whenStringFieldForParentNotARelationship_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.set( 'Name.NotARelationship', 'name is not a relationship' );
+        } catch ( sfab_FabricatedSObject.FieldIsNotParentRelationshipException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'Account.Name is not a parent relationship' ), 'set, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void set_whenStringFieldForParentPolymorphic_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Task.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.set( 'Owner.Username', 'cannot create polymorphic ones automatically' );
+        } catch ( sfab_FabricatedSObject.ParentRelationshipObjectCannotBeAutoCreatedException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'Could not auto-assign an object for the field Owner' ), 'set, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
     }
 }

@@ -3,11 +3,20 @@ public virtual class sfab_FabricatedSObject {
     private Type sType;
     @testVisible private Map<String,sfab_FabricatedSObjectNode> nodes = new Map<String,sfab_FabricatedSObjectNode>();
 
-    sfab_ObjectDescriber sfab_ObjectDescriber = new sfab_ObjectDescriber();
+    sfab_ObjectDescriber objectDescriber = new sfab_ObjectDescriber();
 
     public class FieldDoesNotExistException extends Exception {}
     public class ParentRelationshipDoesNotExistException extends Exception {}
+    public class ChildRelationshipDoesNotExistException extends Exception {}
+
+    public class FieldIsNotSimpleFieldException extends Exception {}
+    public class FieldIsNotParentRelationshipException extends Exception {}
+    public class FieldIsNotChildRelationshipException extends Exception {}
+
+    public class FieldIsADifferentTypeException extends Exception {}
+
     public class ParentRelationshipObjectCannotBeAutoCreatedException extends Exception {}
+
     public class NodeNotSetException extends Exception {}
 
     /**
@@ -156,8 +165,8 @@ public virtual class sfab_FabricatedSObject {
     * @return sfab_FabricatedSObject - This, allowing for a fluent interface
     */
     public sfab_FabricatedSObject set( Map<Schema.SObjectField, Object> fields ) {
-        for (Schema.SObjectField field : fields.keySet()) {
-            setField(field, fields.get(field));
+        for ( Schema.SObjectField field : fields.keySet() ) {
+            setField( field, fields.get( field ) );
         }
         return this;
     }
@@ -194,8 +203,8 @@ public virtual class sfab_FabricatedSObject {
     * @param Object - The value that the field should be set to
     * @return sfab_FabricatedSObject - This, allowing for a fluent interface
     */
-    public sfab_FabricatedSObject setField(Schema.SObjectField field, Object value) {
-        return setNode( field.getDescribe().getName(), new sfab_FieldValuePairNode(field, value));
+    public sfab_FabricatedSObject setField( Schema.SObjectField field, Object value ) {
+        return setDirectField( field.getDescribe().getName(), value );
     }
 
     /**
@@ -263,6 +272,7 @@ public virtual class sfab_FabricatedSObject {
         if ( new sfab_FieldNameSplitter( relationshipName ).isAParentNavigation() ) {
             addParentChild( relationshipName, fabricatedChild );
         } else {
+            childFieldIsChildRelationship( relationshipName );
             if ( !nodeExists( relationshipName ) ) {
                 setNode( relationshipName, new sfab_ChildRelationshipNode( relationshipName ) );
             }
@@ -310,14 +320,13 @@ public virtual class sfab_FabricatedSObject {
     private sfab_FieldNameSplitter defaultParentField( String fieldName ) {
 
         sfab_FieldNameSplitter fieldNameSplitter = new sfab_FieldNameSplitter( fieldName );
+        String parentFieldName = fieldNameSplitter.getParentFieldName();
 
-        if ( !sfab_ObjectDescriber.objectHasParentRelationshipNamed( getSobjectName(), fieldNameSplitter.getParentFieldName() ) ) {
-            throw new ParentRelationshipDoesNotExistException( 'The parent relationship ' + getSobjectName() + '.' + fieldNameSplitter.getParentFieldName() + ' does not exist' );
-        }
+        checkFieldIsParentRelationship( parentFieldName );
 
-        if ( ! nodeExists( fieldNameSplitter.getParentFieldName() ) ) {
+        if ( ! nodeExists( parentFieldName ) ) {
             try {
-                set( fieldNameSplitter.getParentFieldName(), sfab_ObjectDescriber.buildFabricatedObjectForRelationship( getSobjectName(), fieldNameSplitter.getParentFieldName() ) );
+                set( parentFieldName, objectDescriber.buildFabricatedObjectForRelationship( getSobjectName(), parentFieldName ) );
             } catch ( Exception e ) {
                 throw new ParentRelationshipObjectCannotBeAutoCreatedException( 'Could not auto-assign an object for the field ' + fieldName + ': ' + e.getMessage() );
             }
@@ -337,6 +346,7 @@ public virtual class sfab_FabricatedSObject {
     */
     private sfab_FabricatedSObject setDirectField( String fieldName, Object value ) {
 
+        // TODO: move into objectDescriber
         Schema.SobjectField theField = Schema.getGlobalDescribe()
                                                 .get( getSobjectName() )
                                                 ?.getDescribe()
@@ -344,10 +354,19 @@ public virtual class sfab_FabricatedSObject {
                                                 ?.getMap()
                                                 ?.get( fieldName );
         if ( theField == null ) {
+
+            if ( objectDescriber.objectHasParentRelationshipNamed( getSobjectName(), fieldName ) ) {
+                throw new FieldIsNotSimpleFieldException( 'The field '+ getSobjectName() +'.' + fieldName + ' cannot to set to a primitive, it is a parent relationship field' );
+            }
+
+            if ( objectDescriber.objectHasChildRelationshipNamed( getSObjectName(), fieldName ) ) {
+                throw new FieldIsNotSimpleFieldException( 'The field '+ getSobjectName() +'.' + fieldName + ' cannot to set to a primitive, it is a child relationship field' );
+            }
+
             throw new FieldDoesNotExistException( 'The field ' + getSobjectName() + '.' + fieldName + ' does not exist' );
         }
 
-        return setField( theField, value );
+        return setNode( fieldName, new sfab_FieldValuePairNode( theField, value ) );
     }
 
     /**
@@ -359,6 +378,7 @@ public virtual class sfab_FabricatedSObject {
     * @return sfab_FabricatedSObject - This, allowing for a fluent interface
     */
     private sfab_FabricatedSObject setDirectParent( String relationshipName, sfab_FabricatedSObject fabricatedParent ) {
+        checkFieldIsParentRelationship( relationshipName );
         return setNode( relationshipName, new sfab_ParentRelationshipNode(relationshipName, fabricatedParent));
     }
 
@@ -371,6 +391,7 @@ public virtual class sfab_FabricatedSObject {
     * @return sfab_FabricatedSObject - This, allowing for a fluent interface
     */
     private sfab_FabricatedSObject setDirectChildren( String relationshipName, List<sfab_FabricatedSObject> fabricatedChildren ) {
+        childFieldIsChildRelationship( relationshipName );
         return setNode( relationshipName, new sfab_ChildRelationshipNode(relationshipName, fabricatedChildren));
     }
 
@@ -484,11 +505,43 @@ public virtual class sfab_FabricatedSObject {
 
     /**
     * Internal method that should not be called directly.
-    * Gets the total number of nodes (beign fields and relationships) that are set on this object
+    * Gets the total number of nodes (being fields and relationships) that are set on this object
     */
     @testVisible
     private Integer getNumberOfNodes() {
         return nodes.size();
+    }
+
+    /**
+    * Internal method that should not be called directly.
+    * Checks if the fields with the given name is a parent relationship, throwing an exception if not
+    */
+    private void checkFieldIsParentRelationship( String parentFieldName ) {
+
+        if ( !objectDescriber.objectHasParentRelationshipNamed( getSobjectName(), parentFieldName ) ) {
+            if (  objectDescriber.objectHasSimpleFieldNamed( getSobjectName(), parentFieldName )
+                || objectDescriber.objectHasChildRelationshipNamed( getSobjectName(), parentFieldName ) ) {
+                throw new FieldIsNotParentRelationshipException( 'The field ' + getSobjectName() + '.' + parentFieldName + ' is not a parent relationship' );
+            }
+
+            throw new ParentRelationshipDoesNotExistException( 'The parent relationship ' + getSobjectName() + '.' + parentFieldName + ' does not exist' );
+        }
+    }
+
+    /**
+    * Internal method that should not be called directly.
+    * Checks if the fields with the given name is a child relationship, throwing an exception if not
+    */
+    private void childFieldIsChildRelationship( String childRelationshipName ) {
+
+        if ( !objectDescriber.objectHasChildRelationshipNamed( getSobjectName(), childRelationshipName ) ) {
+            if (  objectDescriber.objectHasSimpleFieldNamed( getSobjectName(), childRelationshipName )
+                || objectDescriber.objectHasParentRelationshipNamed( getSobjectName(), childRelationshipName ) ) {
+                throw new FieldIsNotChildRelationshipException( 'The field ' + getSobjectName() + '.' + childRelationshipName + ' is not a child relationship' );
+            }
+
+            throw new ChildRelationshipDoesNotExistException( 'The child relationship ' + getSobjectName() + '.' + childRelationshipName + ' does not exist' );
+        }
     }
 
     /**

@@ -2,6 +2,55 @@
 public with sharing class sfab_ObjectDescriberTest {
 
     @isTest
+    private static void objectHasSimpleFieldNamed_whenGivenASimpleField_expectTrue() {
+        Boolean simpleField = new sfab_ObjectDescriber()
+                                    .objectHasSimpleFieldNamed( 'Contact', 'AccountId' );
+        System.assert( simpleField );
+    }
+
+    @isTest
+    private static void objectHasSimpleFieldNamed_whenGivenParentRelationshipField_expectFalse() {
+        Boolean simpleField = new sfab_ObjectDescriber()
+                                    .objectHasSimpleFieldNamed( 'Contact', 'Account' );
+        System.assert( !simpleField );
+    }
+
+    @isTest
+    private static void objectHasSimpleFieldNamed_whenGivenChildRelationship_expectFalse() {
+        Boolean simpleField = new sfab_ObjectDescriber()
+                                    .objectHasSimpleFieldNamed( 'Account', 'Contacts' );
+        System.assert( !simpleField );
+    }
+
+    @isTest
+    private static void objectHasSimpleFieldNamed_whenGivenInvalidField_expectFalse() {
+        Boolean simpleField = new sfab_ObjectDescriber()
+                                    .objectHasSimpleFieldNamed( 'Account', 'NotAField' );
+        System.assert( !simpleField );
+    }
+
+    @isTest
+    private static void objectHasSimpleFieldNamed_whenGivenInvalidObject_expectFalse() {
+        Boolean simpleField = new sfab_ObjectDescriber()
+                                    .objectHasSimpleFieldNamed( 'NotAnObject', 'Id' );
+        System.assert( !simpleField );
+    }
+
+    @isTest
+    private static void objectHasSimpleFieldNamed_whenGivenANullObject_expectFalse() {
+        Boolean simpleField = new sfab_ObjectDescriber()
+                                    .objectHasSimpleFieldNamed( null, 'Id' );
+        System.assert( !simpleField );
+    }
+
+    @isTest
+    private static void objectHasSimpleFieldNamed_whenGivenANullField_expectFalse() {
+        Boolean simpleField = new sfab_ObjectDescriber()
+                                    .objectHasSimpleFieldNamed( 'Account', null );
+        System.assert( !simpleField );
+    }
+
+    @isTest
     private static void objectHasParentRelationshipNamed_whenGivenAValidRelationship_expectReturnTrue() {
         Boolean hasParentRelationshipNamed = new sfab_ObjectDescriber()
                                                     .objectHasParentRelationshipNamed( 'Contact', 'Account' );

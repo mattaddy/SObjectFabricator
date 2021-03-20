@@ -150,18 +150,16 @@ public with sharing class sfab_ObjectDescriber {
             return fields != null;
         }
 
-        // TODO: test
         public Boolean hasSimpleFieldNamed( String fieldName ) {
-            return fields.containsKey( fieldName ) && ! hasParentRelationshipNamed( fieldName ) && ! hasChildRelationshipNamed( fieldName );
+            return objectExists() && fields.containsKey( fieldName ) && ! hasParentRelationshipNamed( fieldName ) && ! hasChildRelationshipNamed( fieldName );
         }
 
         public Boolean hasParentRelationshipNamed( String relationshipName ) {
-            return parentRelationships.containsKey( relationshipName );
+            return objectExists() && parentRelationships.containsKey( relationshipName );
         }
 
         public Boolean hasChildRelationshipNamed( String relationshipName ) {
-            system.debug( childRelationships );
-            return childRelationships.containsKey( relationshipName );
+            return objectExists() && childRelationships.containsKey( relationshipName );
         }
 
         public List<String> getValidObjectsForParentRelationship( String relationshipName ) {

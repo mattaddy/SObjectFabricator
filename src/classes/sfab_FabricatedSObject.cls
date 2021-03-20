@@ -503,15 +503,17 @@ public virtual class sfab_FabricatedSObject {
 
     /**
     * Internal method that should not be called directly.
-    * Gets the total number of nodes (beign fields and relationships) that are set on this object
+    * Gets the total number of nodes (being fields and relationships) that are set on this object
     */
     @testVisible
     private Integer getNumberOfNodes() {
         return nodes.size();
     }
 
-    // TODO: document
-    // TODO: move it onto objectdescriber?
+    /**
+    * Internal method that should not be called directly.
+    * Checks if the fields with the given name is a parent relationship, throwing an exception if not
+    */
     private void checkFieldIsParentRelationship( String parentFieldName ) {
 
         if ( !objectDescriber.objectHasParentRelationshipNamed( getSobjectName(), parentFieldName ) ) {

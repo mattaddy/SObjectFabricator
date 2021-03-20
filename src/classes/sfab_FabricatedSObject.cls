@@ -390,6 +390,7 @@ public virtual class sfab_FabricatedSObject {
     * @return sfab_FabricatedSObject - This, allowing for a fluent interface
     */
     private sfab_FabricatedSObject setDirectChildren( String relationshipName, List<sfab_FabricatedSObject> fabricatedChildren ) {
+        childFieldIsChildRelationship( relationshipName );
         return setNode( relationshipName, new sfab_ChildRelationshipNode(relationshipName, fabricatedChildren));
     }
 
@@ -526,6 +527,21 @@ public virtual class sfab_FabricatedSObject {
         }
     }
 
+    /**
+    * Internal method that should not be called directly.
+    * Checks if the fields with the given name is a child relationship, throwing an exception if not
+    */
+    private void childFieldIsChildRelationship( String childRelationshipName ) {
+
+        if ( !objectDescriber.objectHasChildRelationshipNamed( getSobjectName(), childRelationshipName ) ) {
+            if (  objectDescriber.objectHasSimpleFieldNamed( getSobjectName(), childRelationshipName )
+                || objectDescriber.objectHasParentRelationshipNamed( getSobjectName(), childRelationshipName ) ) {
+                throw new FieldIsNotChildRelationshipException( 'The field ' + getSobjectName() + '.' + childRelationshipName + ' is not a child relationship' );
+            }
+
+            throw new ChildRelationshipDoesNotExistException( 'The child relationship ' + getSobjectName() + '.' + childRelationshipName + ' does not exist' );
+        }
+    }
 
     /**
     * Internal class that interprets a field name and determines

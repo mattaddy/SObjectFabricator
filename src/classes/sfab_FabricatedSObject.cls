@@ -272,6 +272,7 @@ public virtual class sfab_FabricatedSObject {
         if ( new sfab_FieldNameSplitter( relationshipName ).isAParentNavigation() ) {
             addParentChild( relationshipName, fabricatedChild );
         } else {
+            childFieldIsChildRelationship( relationshipName );
             if ( !nodeExists( relationshipName ) ) {
                 setNode( relationshipName, new sfab_ChildRelationshipNode( relationshipName ) );
             }

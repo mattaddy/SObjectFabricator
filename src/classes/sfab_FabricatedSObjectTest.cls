@@ -443,13 +443,43 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
-    private static void setParent_whenFieldIsPolymorphicAndACorrectSobject_expectNoException() {
+    private static void setParent_whenFieldIsADifferentSobject_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setParent( 'Account', new sfab_FabricatedSObject( Contact.class ) );
+        } catch ( sfab_FabricatedSObject.FieldIsADifferentTypeException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Contact.Account is Account, not Contact' ),
+                        'setParent, when field is a different SObject, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setParent_whenFieldIsPolymorphicAndADifferentSobject_expectException() {
 
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Task.class );
 
         String exceptionMessage = '';
         try {
             fabricatedSObject.setParent( 'Owner', new sfab_FabricatedSObject( Contact.class ) );
+        } catch ( sfab_FabricatedSObject.FieldIsADifferentTypeException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The field Task.Owner is Group,User, not Contact' ),
+                        'setParent, when field is polymorphic and for a different SObject, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void setParent_whenFieldIsPolymorphicAndACorrectSobject_expectNoException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Task.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setParent( 'Owner', new sfab_FabricatedSObject( User.class ) );
         } catch ( sfab_FabricatedSObject.FieldIsADifferentTypeException e ) {
             exceptionMessage = e.getMessage();
         }

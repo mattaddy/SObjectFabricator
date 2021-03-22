@@ -379,6 +379,7 @@ public virtual class sfab_FabricatedSObject {
     */
     private sfab_FabricatedSObject setDirectParent( String relationshipName, sfab_FabricatedSObject fabricatedParent ) {
         checkFieldIsParentRelationship( relationshipName );
+        checkTypeIsValidForParentRelationship( relationshipName, fabricatedParent );
         return setNode( relationshipName, new sfab_ParentRelationshipNode(relationshipName, fabricatedParent));
     }
 
@@ -514,7 +515,7 @@ public virtual class sfab_FabricatedSObject {
 
     /**
     * Internal method that should not be called directly.
-    * Checks if the fields with the given name is a parent relationship, throwing an exception if not
+    * Checks if the field with the given name is a parent relationship, throwing an exception if not
     */
     private void checkFieldIsParentRelationship( String parentFieldName ) {
 
@@ -525,6 +526,17 @@ public virtual class sfab_FabricatedSObject {
             }
 
             throw new ParentRelationshipDoesNotExistException( 'The parent relationship ' + getSobjectName() + '.' + parentFieldName + ' does not exist' );
+        }
+    }
+
+    /**
+    * Internal method that should not be called directly.
+    * Checks if the field with the given name is a parent relationship for an sobject of the same type as the given Fabricated SObject
+    */
+    private void checkTypeIsValidForParentRelationship( String relationshipName, sfab_FabricatedSObject fabricatedParent  ){
+        List<String> validObjectTypes = objectDescriber.getObjectTypesForParentRelationship( getSobjectName(), relationshipName );
+        if ( ! validObjectTypes.contains( fabricatedParent.getSobjectName() ) ) {
+            throw new FieldIsADifferentTypeException( 'The field ' + getSobjectName() + '.' + relationshipName + ' is ' + String.join( validObjectTypes, ',' ) + ', not ' + fabricatedParent.getSobjectName() );
         }
     }
 

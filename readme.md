@@ -206,8 +206,9 @@ If you prefer the set methods to be a little more explicit in their intention, y
 ```java
 Account sObjectAccount = (Account)new sfab_FabricatedSObject( Account.class )
     .setField( Account.Id, 'Id-1' )
-    .setField( Account.LastModifiedDate, Date.newInstance( 2017, 1, 1 ) )
-    .setParent( 'Owner', new sfab_FabricatedSObject( User.class ).setField( 'Username', 'TheOwner' ) )
+    .setField( 'LastModifiedDate', Date.newInstance( 2017, 1, 1 ) )
+    .setParent( 'Owner', new sfab_FabricatedSObject( User.class ).setField( 'Username', 'TheAccountOwner' ) )
+    .setParent( 'Contact.Owner', new sfab_FabricatedSObject( User.class ).setField( 'Username', 'TheContactOwner' ) )
     .setChildren( 'Opportunities', new List<sfab_FabricatedSObject> {
         new sfab_FabricatedSObject( Opportunity.class ).setField( Opportunity.Id, 'OppId-1' ),
         new sfab_FabricatedSObject( Opportunity.class ).setField( Opportunity.Id, 'OppId-2' ) } )

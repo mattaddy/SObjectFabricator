@@ -273,6 +273,7 @@ public virtual class sfab_FabricatedSObject {
             addParentChild( relationshipName, fabricatedChild );
         } else {
             childFieldIsChildRelationship( relationshipName );
+            checkTypeIsValidForChildRelationship( relationshipName, fabricatedChild );
             if ( !nodeExists( relationshipName ) ) {
                 setNode( relationshipName, new sfab_ChildRelationshipNode( relationshipName ) );
             }
@@ -393,7 +394,8 @@ public virtual class sfab_FabricatedSObject {
     */
     private sfab_FabricatedSObject setDirectChildren( String relationshipName, List<sfab_FabricatedSObject> fabricatedChildren ) {
         childFieldIsChildRelationship( relationshipName );
-        return setNode( relationshipName, new sfab_ChildRelationshipNode(relationshipName, fabricatedChildren));
+        checkTypeIsValidForChildRelationship( relationshipName, fabricatedChildren );
+        return setNode( relationshipName, new sfab_ChildRelationshipNode( relationshipName, fabricatedChildren ) );
     }
 
     /**
@@ -533,10 +535,34 @@ public virtual class sfab_FabricatedSObject {
     * Internal method that should not be called directly.
     * Checks if the field with the given name is a parent relationship for an sobject of the same type as the given Fabricated SObject
     */
+    // TODO: push into sfab_ParentRelationshipNode?
     private void checkTypeIsValidForParentRelationship( String relationshipName, sfab_FabricatedSObject fabricatedParent  ){
         List<String> validObjectTypes = objectDescriber.getObjectTypesForParentRelationship( getSobjectName(), relationshipName );
         if ( ! validObjectTypes.contains( fabricatedParent.getSobjectName() ) ) {
             throw new FieldIsADifferentTypeException( 'The field ' + getSobjectName() + '.' + relationshipName + ' is ' + String.join( validObjectTypes, ',' ) + ', not ' + fabricatedParent.getSobjectName() );
+        }
+    }
+
+    /**
+    * Internal method that should not be called directly.
+    * Checks if the field with the given name is a child relationship for an sobject of the same type as the given Fabricated SObject
+    */
+    // TODO: push into sfab_ChildRelationshipNode?
+    private void checkTypeIsValidForChildRelationship( String relationshipName, sfab_FabricatedSObject fabricatedChild  ){
+        String validObjectType = objectDescriber.getObjectTypeForChildRelationship( getSobjectName(), relationshipName );
+        if ( validObjectType != fabricatedChild.getSobjectName() ) {
+            throw new FieldIsADifferentTypeException( 'The relationship ' + getSobjectName() + '.' + relationshipName + ' is ' + validObjectType + ', not ' + fabricatedChild.getSobjectName() );
+        }
+    }
+
+    /**
+    * Internal method that should not be called directly.
+    * Checks if the field with the given name is a child relationship for an sobject of the same type as the given Fabricated SObject
+    */
+    // TODO: push into sfab_ChildRelationshipNode?
+    private void checkTypeIsValidForChildRelationship( String relationshipName, List<sfab_FabricatedSObject> fabricatedChildren  ){
+        for ( sfab_FabricatedSObject thisChild : fabricatedChildren ) {
+            checkTypeIsValidForChildRelationship( relationshipName, thisChild );
         }
     }
 

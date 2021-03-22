@@ -583,6 +583,23 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
+    private static void setChildren_whenFieldIsADifferentSobject_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.setChildren( 'Contacts', new List<sfab_FabricatedSObject>{
+                                                            new sfab_FabricatedSObject( User.class )
+                                                        });
+        } catch ( sfab_FabricatedSObject.FieldIsADifferentTypeException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The relationship Account.Contacts is Contact, not User' ),
+                        'setChildren, when field is a different SObject, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
     private static void setChildren_whenFieldOnParentDoesNotExist_expectException() {
 
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Contact.class );
@@ -645,6 +662,21 @@ private class sfab_FabricatedSObjectTest {
             exceptionMessage = e.getMessage();
         }
         System.assert( exceptionMessage.contains( 'The child relationship Account.Accounts does not exist' ),
+                        'addChild, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
+    }
+
+    @isTest
+    private static void addChild_whenFieldIsADifferentObjectType_expectException() {
+
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+
+        String exceptionMessage = '';
+        try {
+            fabricatedSObject.addChild( 'Contacts', new sfab_FabricatedSObject( Account.class ) );
+        } catch ( sfab_FabricatedSObject.FieldIsADifferentTypeException e ) {
+            exceptionMessage = e.getMessage();
+        }
+        System.assert( exceptionMessage.contains( 'The relationship Account.Contacts is Contact, not Account' ),
                         'addChild, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
     }
 

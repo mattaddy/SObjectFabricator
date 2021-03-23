@@ -2,6 +2,27 @@
 public with sharing class sfab_ObjectDescriberTest {
 
     @isTest
+    private static void getField_whenGivenAFieldThatExist_expectTheField() {
+        SObjectField field = new sfab_ObjectDescriber()
+                                    .getField( 'Contact', 'Id' );
+        System.assertEquals( 'Id', field.getDescribe().getName() );
+    }
+
+    @isTest
+    private static void getField_whenGivenAFieldThatDoesNotExist_expectNull() {
+        SObjectField field = new sfab_ObjectDescriber()
+                                    .getField( 'Contact', 'NotValid' );
+        System.assertEquals( null, field );
+    }
+
+    @isTest
+    private static void getField_whenGivenAnObjectThatDoesNotExist_expectNull() {
+        SObjectField field = new sfab_ObjectDescriber()
+                                    .getField( 'NotValid', 'Id' );
+        System.assertEquals( null, field );
+    }
+
+    @isTest
     private static void objectHasSimpleFieldNamed_whenGivenASimpleField_expectTrue() {
         Boolean simpleField = new sfab_ObjectDescriber()
                                     .objectHasSimpleFieldNamed( 'Contact', 'AccountId' );

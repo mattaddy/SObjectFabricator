@@ -3,39 +3,39 @@ public with sharing class sfab_ObjectDescriber {
     public class ParentRelationshipObjectCannotBeAutoCreatedException extends Exception {}
     public class ParentRelationshipDoesNotExistException extends Exception {}
 
-    static Map<String,SingleObjectRelationshipDescriber> singleObjectRelationshipDescribers = new Map<String,SingleObjectRelationshipDescriber>();
+    static Map<String,SingleObjectDescriber> singleObjectDescribers = new Map<String,SingleObjectDescriber>();
 
-    // TODO: test
     public SobjectField getField( String objectName, String fieldName ) {
-        ensureSingleObjectRelationshipDescriberIsInitialised( objectName );
-        return getRelationshipDescriber( objectName )?.getField( fieldName );
+        ensureSingleObjectDescriberIsInitialised( objectName );
+        return getObjectDescriber( objectName )?.getField( fieldName );
     }
 
     public Boolean objectHasSimpleFieldNamed( String objectName, String fieldName ) {
-        ensureSingleObjectRelationshipDescriberIsInitialised( objectName );
-        return getRelationshipDescriber( objectName )?.hasSimpleFieldNamed( fieldName );
+        ensureSingleObjectDescriberIsInitialised( objectName );
+        return getObjectDescriber( objectName )?.hasSimpleFieldNamed( fieldName );
     }
 
     public Boolean objectHasParentRelationshipNamed( String objectName, String relationshipName ) {
-        ensureSingleObjectRelationshipDescriberIsInitialised( objectName );
-        return getRelationshipDescriber( objectName )?.hasParentRelationshipNamed( relationshipName );
+        ensureSingleObjectDescriberIsInitialised( objectName );
+        return getObjectDescriber( objectName )?.hasParentRelationshipNamed( relationshipName );
     }
 
     public List<String> getObjectTypesForParentRelationship( String objectName, String relationshipName ) {
-        ensureSingleObjectRelationshipDescriberIsInitialised( objectName );
-        return getRelationshipDescriber( objectName )?.getValidObjectsForParentRelationship( relationshipName );
+        ensureSingleObjectDescriberIsInitialised( objectName );
+        return getObjectDescriber( objectName )?.getValidObjectsForParentRelationship( relationshipName );
     }
 
     public Boolean objectHasChildRelationshipNamed( String objectName, String relationshipName ) {
-        ensureSingleObjectRelationshipDescriberIsInitialised( objectName );
-        return getRelationshipDescriber( objectName )?.hasChildRelationshipNamed( relationshipName );
+        ensureSingleObjectDescriberIsInitialised( objectName );
+        return getObjectDescriber( objectName )?.hasChildRelationshipNamed( relationshipName );
     }
 
     public String getObjectTypeForChildRelationship( String objectName, String relationshipName ) {
-        ensureSingleObjectRelationshipDescriberIsInitialised( objectName );
-        return getRelationshipDescriber( objectName )?.getValidObjectForChildRelationship( relationshipName );
+        ensureSingleObjectDescriberIsInitialised( objectName );
+        return getObjectDescriber( objectName )?.getValidObjectForChildRelationship( relationshipName );
     }
 
+    // TODO: should this actually be in FabricatedObject?  At this point we are no longer describing the object!
     public sfab_FabricatedSObject buildFabricatedObjectForRelationship( String objectName, String relationshipName ) {
 
         if ( String.isEmpty( objectName ) ) {
@@ -46,8 +46,8 @@ public with sharing class sfab_ObjectDescriber {
             throw new ParentRelationshipDoesNotExistException( 'Cannot automatically create a Fabricated Object for the relationship because the relationship name has not been specified' );
         }
 
-        ensureSingleObjectRelationshipDescriberIsInitialised( objectName );
-        SingleObjectRelationshipDescriber relationshipDescriber = getRelationshipDescriber( objectName );
+        ensureSingleObjectDescriberIsInitialised( objectName );
+        SingleObjectDescriber relationshipDescriber = getObjectDescriber( objectName );
 
         if ( ! relationshipDescriber.objectExists() ) {
             throw new ParentRelationshipDoesNotExistException( 'Cannot automatically create a Fabricated Object for the relationship ' + objectName + '.' + relationshipName + ' because the object type does not exist' );
@@ -59,17 +59,17 @@ public with sharing class sfab_ObjectDescriber {
         return relationshipDescriber.buildFabricatedObjectForRelationship( relationshipName );
     }
 
-    private void ensureSingleObjectRelationshipDescriberIsInitialised( String objectName ) {
-        if ( ! singleObjectRelationshipDescribers.containsKey( objectName ) ) {
-            singleObjectRelationshipDescribers.put( objectName, new SingleObjectRelationshipDescriber( objectName ) );
+    private void ensureSingleObjectDescriberIsInitialised( String objectName ) {
+        if ( ! singleObjectDescribers.containsKey( objectName ) ) {
+            singleObjectDescribers.put( objectName, new SingleObjectDescriber( objectName ) );
         }
     }
 
-    private SingleObjectRelationshipDescriber getRelationshipDescriber( String objectName ) {
-        return singleObjectRelationshipDescribers.get( objectName );
+    private SingleObjectDescriber getObjectDescriber( String objectName ) {
+        return singleObjectDescribers.get( objectName );
     }
 
-    public class SingleObjectRelationshipDescriber {
+    public class SingleObjectDescriber {
 
         private String  objectName;
 
@@ -148,7 +148,7 @@ public with sharing class sfab_ObjectDescriber {
             set;
         }
 
-        public SingleObjectRelationshipDescriber( String objectName ) {
+        public SingleObjectDescriber( String objectName ) {
             this.objectName = objectName;
         }
 
@@ -157,10 +157,13 @@ public with sharing class sfab_ObjectDescriber {
         }
 
         public Boolean hasFieldNamed( String fieldName ) {
-            return fields.containsKey( fieldName );
+            return objectExists() && fields.containsKey( fieldName );
         }
 
         public SObjectField getField( String fieldName ) {
+            if ( ! hasFieldNamed( fieldName ) ) {
+                return null;
+            }
             return fields.get( fieldName );
         }
 

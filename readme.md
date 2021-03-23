@@ -216,3 +216,52 @@ Account sObjectAccount = (Account)new sfab_FabricatedSObject( Account.class )
     .addChild( 'Opportunities', new sfab_FabricatedSObject( Opportunity.class ).setField( 'Id', 'OppId-4') ) // and addChild on a single child relationship
     .toSObject();
 ```
+
+### Limitations
+
+#### SObjectField
+
+When using SObjectFields in order to set field values, it is not possible for SObjectFabricator to ensure that fields from the correct object are being used.  This is due to a limitation in the SObjectField class as supplied by Salesforce.  I.E. SObjectField does not (at time of writing) include a reference to the object that the field belongs to, nor the method of construction.
+
+Therefore, the following may not do quite as expected:
+
+```java
+Contact con = (Contact) new sfab_FabricatedSobject( Contact.class )
+                    .set( Contact.Account.Id, 'The Account Id?' )
+                    .toSObject();
+
+System.debug( 'Contact.Id: ' + con.Id );
+// Contact.Id: The Account Id?
+
+System.debug( 'Contact.Account.Id: ' + con.Account.Id );
+// Contact.Account.Id: null
+```
+
+Similarly, the following yields the same misleading result:
+
+```java
+Contact con = (Contact) new sfab_FabricatedSobject( Contact.class )
+                    .set( Account.Id, 'The Account Id?' )
+                    .toSObject();
+
+System.debug( 'Contact.Id: ' + con.Id );
+// Contact.Id: The Account Id?
+
+System.debug( 'Contact.Account.Id: ' + con.Account.Id );
+// Contact.Account.Id: null
+```
+
+In this case, the correct mechanism to use is a String representation of the field name.  I.E.
+
+
+```java
+Contact con = (Contact) new sfab_FabricatedSobject( Contact.class )
+                    .set( 'Account.Id', 'The Account Id!' )
+                    .toSObject();
+
+System.debug( 'Contact.Id: ' + con.Id );
+// Contact.Id: null
+
+System.debug( 'Contact.Account.Id: ' + con.Account.Id );
+// Contact.Account.Id: The Account Id!
+```

@@ -5,6 +5,12 @@ public with sharing class sfab_ObjectDescriber {
 
     static Map<String,SingleObjectRelationshipDescriber> singleObjectRelationshipDescribers = new Map<String,SingleObjectRelationshipDescriber>();
 
+    // TODO: test
+    public SobjectField getField( String objectName, String fieldName ) {
+        ensureSingleObjectRelationshipDescriberIsInitialised( objectName );
+        return getRelationshipDescriber( objectName )?.getField( fieldName );
+    }
+
     public Boolean objectHasSimpleFieldNamed( String objectName, String fieldName ) {
         ensureSingleObjectRelationshipDescriberIsInitialised( objectName );
         return getRelationshipDescriber( objectName )?.hasSimpleFieldNamed( fieldName );
@@ -150,8 +156,16 @@ public with sharing class sfab_ObjectDescriber {
             return fields != null;
         }
 
+        public Boolean hasFieldNamed( String fieldName ) {
+            return fields.containsKey( fieldName );
+        }
+
+        public SObjectField getField( String fieldName ) {
+            return fields.get( fieldName );
+        }
+
         public Boolean hasSimpleFieldNamed( String fieldName ) {
-            return objectExists() && fields.containsKey( fieldName ) && ! hasParentRelationshipNamed( fieldName ) && ! hasChildRelationshipNamed( fieldName );
+            return objectExists() && hasFieldNamed( fieldName ) && ! hasParentRelationshipNamed( fieldName ) && ! hasChildRelationshipNamed( fieldName );
         }
 
         public Boolean hasParentRelationshipNamed( String relationshipName ) {

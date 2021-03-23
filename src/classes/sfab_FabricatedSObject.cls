@@ -347,13 +347,8 @@ public virtual class sfab_FabricatedSObject {
     */
     private sfab_FabricatedSObject setDirectField( String fieldName, Object value ) {
 
-        // TODO: move into objectDescriber
-        Schema.SobjectField theField = Schema.getGlobalDescribe()
-                                                .get( getSobjectName() )
-                                                ?.getDescribe()
-                                                ?.fields
-                                                ?.getMap()
-                                                ?.get( fieldName );
+        Schema.SobjectField theField = objectDescriber.getField( getSObjectName(), fieldName);
+
         if ( theField == null ) {
 
             if ( objectDescriber.objectHasParentRelationshipNamed( getSobjectName(), fieldName ) ) {

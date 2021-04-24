@@ -15,12 +15,31 @@ public class sfab_FieldValuePairNode implements sfab_FabricatedSObjectNode {
         return value;
     }
 
-    public Map<String, Object> serialize() {
-        // TODO: if not blob, do this
-        return new Map<String, Object> { getName() => value };
+    public Map<String,Object> serialize() {
+        if ( fieldIsBlob() ) {
+            return new Map<String,Object>(); // is handled by the post process instead as deserializing a blob field does not work (API 51)
+        } else {
+            return new Map<String,Object> { getName() => value };
+        }
     }
 
     public void postBuildProcess( Object objectToProcess ) {
-        // TODO: move the blob field processing into here
+        if ( fieldIsBlob() ) {
+
+            system.debug( 'objectToProcess: ' + objectToProcess );
+            system.debug( 'value: ' + value );
+            Blob valueToSet;
+            if ( value instanceOf Blob ) {
+                valueToSet = (Blob)value;
+            } else if ( value instanceOf String ) {
+                valueToSet = Blob.valueOf( (String)value );
+            }
+
+            ((Sobject)objectToProcess).put( field, value );
+        }
+    }
+
+    private Boolean fieldIsBlob() {
+        return field.getDescribe().getType() == Schema.DisplayType.BASE64;
     }
 }

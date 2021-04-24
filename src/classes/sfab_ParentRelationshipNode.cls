@@ -28,7 +28,7 @@ public class sfab_ParentRelationshipNode implements sfab_FabricatedSObjectNode {
     }
 
     public void postBuildProcess( Object objectToProcess ) {
-        parent.postBuildProcess( objectToProcess );
+        parent.postBuildProcess( ((Sobject)objectToProcess).getSobject( fieldName ) );
     }
 
 }

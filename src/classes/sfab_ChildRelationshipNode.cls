@@ -44,4 +44,15 @@ public class sfab_ChildRelationshipNode implements sfab_FabricatedSObjectNode {
                 }
         };
     }
+
+    public void postBuildProcess( Object objectToProcess ) {
+        // Note: this relies on the deserialization of the Fabricated SObject returning the
+        // child objects in same order as the input map, otherwise the Blob field values
+        // will be applied to the wrong objects.  As far as we can tell, this is reliable
+        // at the time of writing.  If it becomes not the case, this will need re-writing
+        List<Sobject> childSobjects = ((Sobject)objectToProcess).getSObjects( fieldName );
+        for ( Integer i=0; i<childSobjects.size(); i++ ) {
+            children[i].postBuildProcess( childSobjects[i] );
+        }
+    }
 }

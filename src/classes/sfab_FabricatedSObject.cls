@@ -288,7 +288,19 @@ public virtual class sfab_FabricatedSObject {
     * @return SObject - The built SObject
     */
     public SObject toSObject() {
-        return (SObject)JSON.deserialize(JSON.serialize(serialize()), sType);
+        SObject newObject = (SObject)JSON.deserialize(JSON.serialize(serialize()), sType);
+        postBuildProcess( newObject );
+        return newObject;
+    }
+
+    /**
+    * An internal method that should not be called directly.
+    * Is public because of the requirement to call it from other outer classes within the library
+    */
+    public void postBuildProcess( SObject objectToProcess ) {
+        for ( String nodeName : nodes.keySet() ) {
+            nodes.get( nodeName ).postBuildProcess( objectToProcess );
+        }
     }
 
     /**
@@ -347,7 +359,7 @@ public virtual class sfab_FabricatedSObject {
     */
     private sfab_FabricatedSObject setDirectField( String fieldName, Object value ) {
 
-        Schema.SobjectField theField = objectDescriber.getField( getSObjectName(), fieldName);
+        Schema.SobjectField theField = objectDescriber.getField( getSObjectName(), fieldName );
 
         if ( theField == null ) {
 

@@ -25,16 +25,12 @@ public class sfab_FieldValuePairNode implements sfab_FabricatedSObjectNode {
 
     public void postBuildProcess( Object objectToProcess ) {
         if ( fieldIsBlob() ) {
-
-            system.debug( 'objectToProcess: ' + objectToProcess );
-            system.debug( 'value: ' + value );
             Blob valueToSet;
             if ( value instanceOf Blob ) {
                 valueToSet = (Blob)value;
             } else if ( value instanceOf String ) {
                 valueToSet = Blob.valueOf( (String)value );
             }
-
             ((Sobject)objectToProcess).put( field, valueToSet );
         }
     }

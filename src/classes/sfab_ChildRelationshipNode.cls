@@ -47,7 +47,7 @@ public class sfab_ChildRelationshipNode implements sfab_FabricatedSObjectNode {
 
     public void postBuildProcess( Object objectToProcess ) {
         // TODO: note on the fragility of this
-        List<Sobject> childSobjects = (List<Sobject>)objectToProcess;
+        List<Sobject> childSobjects = ((Sobject)objectToProcess).getSObjects( fieldName );
 
         for ( Integer i=0; i<childSobjects.size(); i++ ) {
             children[i].postBuildProcess( childSobjects[i] );

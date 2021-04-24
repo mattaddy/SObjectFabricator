@@ -47,28 +47,6 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
-    private static void toSObject_whenBlobSet_expectBlobValueSet() {
-        sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( ContentVersion.class );
-        fabricated.set( 'VersionData', Blob.valueOf( 'abc' ) );
-        ContentVersion sobj = (ContentVersion)fabricated.toSObject();
-        System.assertEquals( Blob.valueOf( 'abc' ), sobj.VersionData );
-    }
-
-    @isTest
-    private static void toSObject_whenBlobSetOnParent_expectBlobValueSet() {
-        sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( ContentDocumentLink.class );
-        fabricated.set( 'ContentDocument.LatestPublishedVersion.VersionData', Blob.valueOf( 'abc' ) );
-        ContentDocumentLink sobj = (ContentDocumentLink)fabricated.toSObject();
-        System.assertEquals( Blob.valueOf( 'abc' ), sobj.ContentDocument.LatestPublishedVersion.VersionData );
-    }
-
-    // TODO: set on children
-
-    // TODO: set using a string
-    // TODO: set using not a string
-    // TODO: set using setField
-
-    @isTest
     private static void setField_expectFieldAddedToNodes() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.setField(Account.Id, 'Id-1');
@@ -805,5 +783,84 @@ private class sfab_FabricatedSObjectTest {
         System.assert( exceptionMessage.contains( 'Could not auto-assign an object for the field Owner' ), 'set, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
     }
 
+    @isTest
+    private static void toSObject_whenBlobSet_expectBlobValueSet() {
+        sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( ContentVersion.class );
+        fabricated.set( 'VersionData', Blob.valueOf( 'abc' ) );
+        ContentVersion sobj = (ContentVersion)fabricated.toSObject();
+        System.assertEquals( Blob.valueOf( 'abc' ), sobj.VersionData );
+    }
 
+    @isTest
+    private static void toSObject_whenBlobSetViaField_expectBlobValueSet() {
+        sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( ContentVersion.class );
+        fabricated.set( ContentVersion.VersionData, Blob.valueOf( 'abc' ) );
+        ContentVersion sobj = (ContentVersion)fabricated.toSObject();
+        System.assertEquals( Blob.valueOf( 'abc' ), sobj.VersionData );
+    }
+
+    @isTest
+    private static void toSObject_whenBlobSetViaSetField_expectBlobValueSet() {
+        sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( ContentVersion.class );
+        fabricated.setField( 'VersionData', Blob.valueOf( 'abc' ) );
+        ContentVersion sobj = (ContentVersion)fabricated.toSObject();
+        System.assertEquals( Blob.valueOf( 'abc' ), sobj.VersionData );
+    }
+
+    @isTest
+    private static void toSObject_whenBlobSetViaSetFieldWithField_expectBlobValueSet() {
+        sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( ContentVersion.class );
+        fabricated.setField( ContentVersion.VersionData, Blob.valueOf( 'abc' ) );
+        ContentVersion sobj = (ContentVersion)fabricated.toSObject();
+        System.assertEquals( Blob.valueOf( 'abc' ), sobj.VersionData );
+    }
+
+    @isTest
+    private static void toSObject_whenBlobSetToString_expectBlobValueSet() {
+        sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( ContentVersion.class );
+        fabricated.set( 'VersionData', 'abc' );
+        ContentVersion sobj = (ContentVersion)fabricated.toSObject();
+        System.assertEquals( Blob.valueOf( 'abc' ), sobj.VersionData );
+    }
+
+    @isTest
+    private static void toSObject_whenBlobSetToEmptyString_expectBlobValueSet() {
+        sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( ContentVersion.class );
+        fabricated.set( 'VersionData', '' );
+        ContentVersion sobj = (ContentVersion)fabricated.toSObject();
+        System.assertEquals( Blob.valueOf( '' ), sobj.VersionData );
+    }
+
+    @isTest
+    private static void toSObject_whenBlobSetToNull_expectBlobValueSet() {
+        sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( ContentVersion.class );
+        fabricated.set( 'VersionData', (String)null );
+        ContentVersion sobj = (ContentVersion)fabricated.toSObject();
+        System.assertEquals( null, sobj.VersionData );
+    }
+
+    @isTest
+    private static void toSObject_whenBlobSetOnParent_expectBlobValueSet() {
+        sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( ContentDocumentLink.class );
+        fabricated.set( 'ContentDocument.LatestPublishedVersion.VersionData', Blob.valueOf( 'abc' ) );
+        ContentDocumentLink sobj = (ContentDocumentLink)fabricated.toSObject();
+        System.assertEquals( Blob.valueOf( 'abc' ), sobj.ContentDocument.LatestPublishedVersion.VersionData );
+    }
+
+    @isTest
+    private static void toSObject_whenBlobSetAndChildren_expectBlobValueSet() {
+        sfab_FabricatedSObject fabricated =
+            new sfab_FabricatedSObject( ContentDocument.class )
+                .add( 'ContentVersions', new sfab_FabricatedSObject( ContentVersion.class )
+                                            .set( 'VersionData', Blob.valueOf( 'def' ) ) )
+                .add( 'ContentVersions', new sfab_FabricatedSObject( ContentVersion.class )
+                                            .set( 'VersionData', Blob.valueOf( 'ghi' ) ) )
+                .add( 'ContentVersions', new sfab_FabricatedSObject( ContentVersion.class )
+                                            .set( 'VersionData', Blob.valueOf( 'abc' ) ) );
+
+        ContentDocument sobj = (ContentDocument)fabricated.toSObject();
+        System.assertEquals( Blob.valueOf( 'def' ), sobj.ContentVersions[0].VersionData );
+        System.assertEquals( Blob.valueOf( 'ghi' ), sobj.ContentVersions[1].VersionData );
+        System.assertEquals( Blob.valueOf( 'abc' ), sobj.ContentVersions[2].VersionData );
+    }
 }

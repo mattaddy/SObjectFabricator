@@ -35,7 +35,7 @@ public class sfab_FieldValuePairNode implements sfab_FabricatedSObjectNode {
                 valueToSet = Blob.valueOf( (String)value );
             }
 
-            ((Sobject)objectToProcess).put( field, value );
+            ((Sobject)objectToProcess).put( field, valueToSet );
         }
     }
 

@@ -17,7 +17,7 @@ public class sfab_FieldValuePairNode implements sfab_FabricatedSObjectNode {
 
     public Map<String,Object> serialize() {
         if ( fieldIsBlob() ) {
-            return new Map<String,Object>(); // is handled by the post process instead as deserializing a blob field does not work (API 51)
+            return new Map<String,Object>(); // is handled by the post process instead as deserializing a blob field does not work (API 50)
         } else {
             return new Map<String,Object> { getName() => value };
         }

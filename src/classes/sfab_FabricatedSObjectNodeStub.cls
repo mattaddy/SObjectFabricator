@@ -20,4 +20,7 @@ public class sfab_FabricatedSObjectNodeStub implements sfab_FabricatedSObjectNod
         serializeInvoked = true;
         return serializedNode;
     }
+
+    public void postBuildProcess( Object objectToProcess ) {
+    }
 }

@@ -26,4 +26,9 @@ public class sfab_ParentRelationshipNode implements sfab_FabricatedSObjectNode {
     public Map<String, Object> serialize() {
         return new Map<String, Object> { fieldName => parent.serialize() };
     }
+
+    public void postBuildProcess( Object objectToProcess ) {
+        parent.postBuildProcess( objectToProcess );
+    }
+
 }

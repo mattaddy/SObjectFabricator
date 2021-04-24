@@ -47,6 +47,28 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
+    private static void toSObject_whenBlobSet_expectBlobValueSet() {
+        sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( ContentVersion.class );
+        fabricated.set( 'VersionData', Blob.valueOf( 'abc' ) );
+        ContentVersion sobj = (ContentVersion)fabricated.toSObject();
+        System.assertEquals( Blob.valueOf( 'abc' ), sobj.VersionData );
+    }
+
+    @isTest
+    private static void toSObject_whenBlobSetOnParent_expectBlobValueSet() {
+        sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( ContentDocumentLink.class );
+        fabricated.set( 'ContentDocument.LatestPublishedVersion.VersionData', Blob.valueOf( 'abc' ) );
+        ContentDocumentLink sobj = (ContentDocumentLink)fabricated.toSObject();
+        System.assertEquals( Blob.valueOf( 'abc' ), sobj.ContentDocument.LatestPublishedVersion.VersionData );
+    }
+
+    // TODO: set on children
+
+    // TODO: set using a string
+    // TODO: set using not a string
+    // TODO: set using setField
+
+    @isTest
     private static void setField_expectFieldAddedToNodes() {
         sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject(Account.class);
         fabricatedSObject.setField(Account.Id, 'Id-1');
@@ -782,4 +804,6 @@ private class sfab_FabricatedSObjectTest {
         }
         System.assert( exceptionMessage.contains( 'Could not auto-assign an object for the field Owner' ), 'set, when field does not exist, will throw an exception with a useful message (got "' + exceptionMessage + '")' );
     }
+
+
 }

@@ -3,6 +3,8 @@ public virtual class sfab_FabricatedSObject {
     private Type sType;
     @testVisible private Map<String,sfab_FabricatedSObjectNode> nodes = new Map<String,sfab_FabricatedSObjectNode>();
 
+    private Map<String,Blob> blobNodes = new Map<String,Blob>();
+
     sfab_ObjectDescriber objectDescriber = new sfab_ObjectDescriber();
 
     public class FieldDoesNotExistException extends Exception {}
@@ -288,7 +290,26 @@ public virtual class sfab_FabricatedSObject {
     * @return SObject - The built SObject
     */
     public SObject toSObject() {
-        return (SObject)JSON.deserialize(JSON.serialize(serialize()), sType);
+        SObject newObject = (SObject)JSON.deserialize(JSON.serialize(serialize()), sType);
+        postBuildProcess( newObject );
+        return newObject;
+    }
+
+    public void postBuildProcess( Object objectToProcess ) {
+        // TODO: push this into the field pair, and remove 'blobNodes'
+        Sobject sobjectToProcess = (Sobject)objectToProcess;
+        for ( String fieldName : blobNodes.keySet() ) {
+            sobjectToProcess.put( fieldName, blobNodes.get( fieldName ) );
+        }
+
+        // TODO: this could be cleaner
+        for ( String nodeName : nodes.keySet() ) {
+            try {
+                nodes.get( nodeName ).postBuildProcess( sobjectToProcess.get( nodeName ) );
+            } catch( Exception e ) {
+                nodes.get( nodeName ).postBuildProcess( sobjectToProcess.getSObject( nodeName ) );
+            }
+        }
     }
 
     /**
@@ -347,7 +368,7 @@ public virtual class sfab_FabricatedSObject {
     */
     private sfab_FabricatedSObject setDirectField( String fieldName, Object value ) {
 
-        Schema.SobjectField theField = objectDescriber.getField( getSObjectName(), fieldName);
+        Schema.SobjectField theField = objectDescriber.getField( getSObjectName(), fieldName );
 
         if ( theField == null ) {
 
@@ -360,6 +381,14 @@ public virtual class sfab_FabricatedSObject {
             }
 
             throw new FieldDoesNotExistException( 'The field ' + getSobjectName() + '.' + fieldName + ' does not exist' );
+        }
+
+        // TODO: this has to be done in the top level set too
+        System.debug( 'setting ' + fieldName + ' to ' + value );
+        // TODO: move into object describer
+        if ( theField.getDescribe().getType() == Schema.DisplayType.BASE64 ) {
+            System.debug( 'is a blob' );
+            return setBlobNode( fieldName, value );
         }
 
         return setNode( fieldName, new sfab_FieldValuePairNode( theField, value ) );
@@ -427,6 +456,22 @@ public virtual class sfab_FabricatedSObject {
     */
     private sfab_FabricatedSObject setNode( String nodeName, sfab_FabricatedSObjectNode node ) {
         nodes.put( nodeName, node );
+        return this;
+    }
+
+    /**
+     * Internal method tht should not be called directly.
+     * Sets the specified blob node to the specified value, converting to a Blob if required
+     */
+    private sfab_FabricatedSObject setBlobNode( String nodeName, Object nodeValue ) {
+        Blob valueToSet;
+        if ( nodeValue instanceOf Blob ) {
+            valueToSet = (Blob)nodeValue;
+        } else if ( nodeValue instanceOf String ) {
+            valueToSet = Blob.valueOf( (String)nodeValue );
+        }
+        // TODO: exception if it's not a blob
+        blobNodes.put( nodeName, valueToSet );
         return this;
     }
 

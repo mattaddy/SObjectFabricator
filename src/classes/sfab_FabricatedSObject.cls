@@ -293,6 +293,10 @@ public virtual class sfab_FabricatedSObject {
         return newObject;
     }
 
+    /**
+    * An internal method that should not be called directly.
+    * Is public because of the requirement to call it from other outer classes within the library
+    */
     public void postBuildProcess( SObject objectToProcess ) {
         for ( String nodeName : nodes.keySet() ) {
             nodes.get( nodeName ).postBuildProcess( objectToProcess );

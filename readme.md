@@ -217,6 +217,16 @@ Account sObjectAccount = (Account)new sfab_FabricatedSObject( Account.class )
     .toSObject();
 ```
 
+### Setting BASE64 encoded fields
+
+Fields such as `ContentVersion.VersionData` and `Attachment.Body` are BASE64 encoded, and as such can normally be set by specifying with a Blob value.
+
+When setting these fields using `sfab_FabricatedSObject`, you may specify the value either:
+* As a Blob.  E.g. `Blob.valueOf( 'abc' )`
+* As a String. E.g. `'abc'`
+
+`sfab_FabricatedSObject` will deal with the conversion to the correct data type for you.
+
 ### Limitations
 
 #### SObjectField
@@ -265,3 +275,12 @@ System.debug( 'Contact.Id: ' + con.Id );
 System.debug( 'Contact.Account.Id: ' + con.Account.Id );
 // Contact.Account.Id: The Account Id!
 ```
+
+#### EmailCapture.RawMessage
+
+It is not possible to set the field `RawMessage` on the object `EmailCapture` this is because of two issues combined:
+
+1. Salesforce does not allow `EmailCapture.RawMessage` to be set directly - it will throw `System.SObjectException: Field RawMessage is not editable`.
+2. Salesforce cannot deserialize JSON that includes a reference to a BASE64 encoded field.
+
+Because of this combination, there is no way to set `EmailCapture.RawMessage` for an in-memory object.

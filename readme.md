@@ -265,3 +265,12 @@ System.debug( 'Contact.Id: ' + con.Id );
 System.debug( 'Contact.Account.Id: ' + con.Account.Id );
 // Contact.Account.Id: The Account Id!
 ```
+
+#### EmailCapture.RawMessage
+
+It is not possible to set the field `RawMessage` on the object `EmailCapture` this is because of two issues combined:
+
+1. Salesforce does not allow `EmailCapture.RawMessage` to be set directly - it will throw `System.SObjectException: Field RawMessage is not editable`.
+2. Salesforce cannot deserialize JSON that includes a reference to a BASE64 encoded field.
+
+Because of this combination, there is no way to set `EmailCapture.RawMessage` for an in-memory object.

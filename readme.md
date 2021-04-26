@@ -217,6 +217,16 @@ Account sObjectAccount = (Account)new sfab_FabricatedSObject( Account.class )
     .toSObject();
 ```
 
+### Setting BASE64 encoded fields
+
+Fields such as `ContentVersion.VersionData` and `Attachment.Body` are BASE64 encoded, and as such can normally be set by specifying with a Blob value.
+
+When setting these fields using `sfab_FabricatedSObject`, you may specify the value either:
+* As a Blob.  E.g. `Blob.valueOf( 'abc' )`
+* As a String. E.g. `'abc'`
+
+`sfab_FabricatedSObject` will deal with the conversion to the correct data type for you.
+
 ### Limitations
 
 #### SObjectField

@@ -832,22 +832,6 @@ private class sfab_FabricatedSObjectTest {
     }
 
     @isTest
-    private static void toSObject_whenBlobSetOnDigitalSignature_expectBlobValueSet() {
-        sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( DigitalSignature.class );
-        fabricated.set( 'DocumentBody', Blob.valueOf( 'abc' ) );
-        DigitalSignature sobj = (DigitalSignature)fabricated.toSObject();
-        System.assertEquals( Blob.valueOf( 'abc' ), sobj.DocumentBody );
-    }
-
-    @isTest
-    private static void toSObject_whenBlobSetOnServiceReport_expectBlobValueSet() {
-        sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( ServiceReport.class );
-        fabricated.set( 'DocumentBody', Blob.valueOf( 'abc' ) );
-        ServiceReport sobj = (ServiceReport)fabricated.toSObject();
-        System.assertEquals( Blob.valueOf( 'abc' ), sobj.DocumentBody );
-    }
-
-    @isTest
     private static void toSObject_whenBlobSetOnMobileApplicationDetail_expectBlobValueSet() {
         sfab_FabricatedSObject fabricated = new sfab_FabricatedSObject( MobileApplicationDetail.class );
         fabricated.set( 'ApplicationBinary', Blob.valueOf( 'abc' ) );

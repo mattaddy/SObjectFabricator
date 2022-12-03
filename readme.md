@@ -42,6 +42,17 @@ Contact contactSobject = (Contact)new sfab_FabricatedSObject( Contact.class )
                             .toSObject();
 ```
 
+Or you can explicitly set the object by using another fabricated SObject and setting the relationship:
+
+```java
+sfab_FabricatedSObject fabricatedAccount = new sfab_FabricatedSObject( Account.class )
+													.set( 'Name', 'Account Name' );
+
+Contact contactSobject = (Contact)new sfab_FabricatedSObject( Contact.class )
+                            .set( 'Account', fabricatedAccount )
+                            .toSObject();
+```
+
 #### Setting Child Relationships
 
 Creating an SObject with a child relationship set can be as simple as:
